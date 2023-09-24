@@ -16,14 +16,15 @@ jobs:
         - name: Set up Go
           uses: actions/setup-go@v4
           with:
-            go-version: '1.21'
+            go-version: '1.21.0'
+            go-cgo: 0
             cache-dependency-path: go.sum
 
         - name: Build
-          run: GOEXPERIMENT="loopvar" CGO_ENABLED=0 go build -o ./bin/ -v ./...
+          run: go build -o ./bin/ -v ./...
 
         - name: Test
-          run: GOEXPERIMENT="loopvar" go test -v ./...
+          run: go test -v ./...
 
   linter:
     name: lint
