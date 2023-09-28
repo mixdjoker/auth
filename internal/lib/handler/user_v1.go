@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strings"
 
 	"github.com/brianvoe/gofakeit"
 	"github.com/fatih/color"
@@ -41,16 +42,20 @@ func (h *UserHandlerV1) Create(ctx context.Context, req *desc.CreateRequest) (*d
 		h.log.Println(color.BlueString("Deadline: %v", dline))
 	}
 
-	resStr := fmt.Sprintf("Received:\n\tName: %v,\n\temail: %v,\n\tPassword: %v,\n\tPassword confirm: %v,\n\tRole: %v\n", name, email, pass, passConfirm, role)
+	resStr := fmt.Sprintf("Received Create:\n\tName: %v,\n\tEmail: %v,\n\tPassword: %v,\n\tPassword confirm: %v,\n\tRole: %v\n", name, email, pass, passConfirm, role)
 	h.log.Println(color.BlueString(resStr))
 
 	randInt64, err := rand.Int(rand.Reader, new(big.Int).SetInt64(1<<63-1))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
+	id := randInt64.Int64()
+
+	respStr := fmt.Sprintf("Response Create:\n\tId: %v\n", id)
+	h.log.Println(color.GreenString(respStr))
 
 	return &desc.CreateResponse{
-		Id: randInt64.Int64(),
+		Id: id,
 	}, nil
 }
 
@@ -62,7 +67,7 @@ func (h *UserHandlerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.Ge
 		h.log.Println(color.BlueString("Deadline: %v", dline))
 	}
 
-	h.log.Println(color.BlueString("Received:\n\tId: %v", id))
+	h.log.Println(color.BlueString("Received Get:\n\tId: %v", id))
 
 	role := gofakeit.RandString([]string{"ADMIN", "USER"})
 
@@ -75,7 +80,7 @@ func (h *UserHandlerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.Ge
 		UpdatedAt: timestamppb.New(gofakeit.Date()),
 	}
 
-	rStr := fmt.Sprintf("Response:\n\tId: %v,\n\tName: %v,\n\temail: %v,\n\tRole: %v,\n\tCreatedAt: %v,\n\tUpdatedAt: %v\n",
+	rStr := fmt.Sprintf("Response Get:\n\tId: %v,\n\tName: %v,\n\tEmail: %v,\n\tRole: %v,\n\tCreatedAt: %v,\n\tUpdatedAt: %v\n",
 		resp.Id,
 		resp.Name,
 		resp.Email,
@@ -89,11 +94,43 @@ func (h *UserHandlerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.Ge
 }
 
 // Update is a method that implements the Update method of the UserHandlerV1 interface
-func Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+func (h *UserHandlerV1) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+	buf := strings.Builder{}
+
+	buf.WriteString("Received Update:\n")
+
+	idStr := fmt.Sprintf("\tId: %v\n", req.GetId())
+	buf.WriteString(idStr)
+
+	if req.Name != nil {
+		name := req.GetName().GetValue()
+		nameStr := fmt.Sprintf("\tName: %v\n", name)
+		buf.WriteString(nameStr)
+	}
+
+	if req.Email != nil {
+		email := req.GetEmail().GetValue()
+		emailStr := fmt.Sprintf("\tEmail: %v\n", email)
+		buf.WriteString(emailStr)
+	}
+	if dline, ok := ctx.Deadline(); ok {
+		log.Println(color.BlueString("Deadline: %v", dline))
+	}
+
+	h.log.Println(color.BlueString(buf.String()))
+
+	return &emptypb.Empty{}, nil
 }
 
 // Delete is a method that implements the Delete method of the UserHandlerV1 interface
-func Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+func (h *UserHandlerV1) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+	id := req.GetId()
+
+	if dline, ok := ctx.Deadline(); ok {
+		log.Println(color.BlueString("Deadline: %v", dline))
+	}
+
+	log.Println(color.BlueString("Received Delete:\n\tId: %v", id))
+
+	return &emptypb.Empty{}, nil
 }
