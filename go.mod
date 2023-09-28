@@ -3,6 +3,7 @@ module github.com/mixdjoker/auth
 go 1.21.0
 
 require (
+	github.com/brianvoe/gofakeit v2.2.0+incompatible
 	github.com/fatih/color v1.15.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	google.golang.org/grpc v1.58.2
