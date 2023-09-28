@@ -35,18 +35,22 @@ init:
 
 PHONY: generate
 generate:
+	make clean-api
 	make generate-note-api
 
 PHONY: generate-note-api
 generate-note-api:
-	rm -rf ./pkg/note_v1
-	mkdir -p pkg/note_v1
 	protoc --proto_path api/user_v1 \
 	--go_out=pkg/user_v1 --go_opt=paths=source_relative \
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
 	--go-grpc_out=pkg/user_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/user_v1/user.proto
+
+PHONY: clean-api
+clean-api:
+	rm -rf ./pkg/user_v1
+	mkdir -p ./pkg/user_v1
 
 # Build & Run
 
