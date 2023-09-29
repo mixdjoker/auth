@@ -18,7 +18,7 @@ import (
 
 func main() {
 	cfg := config.MustConfig()
-	aLog := log.New(os.Stdout, color.CyanString("[AUTH] "), log.LstdFlags)
+	aLog := log.New(os.Stdout, color.CyanString("[INFO] "), log.LstdFlags)
 
 	aLog.Println("Starting auth service...")
 
