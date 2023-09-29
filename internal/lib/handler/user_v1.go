@@ -30,7 +30,7 @@ func NewUserHandlerV1(log *log.Logger) *UserHandlerV1 {
 	}
 }
 
-// Create is a method that implements the Create method of the UserHandlerV1 interface
+// Create is a method that implements the Create method of the User_V1Server interface
 func (h *UserHandlerV1) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 	name := req.GetName()
 	email := req.GetEmail()
@@ -59,7 +59,7 @@ func (h *UserHandlerV1) Create(ctx context.Context, req *desc.CreateRequest) (*d
 	}, nil
 }
 
-// Get is a method that implements the Get method of the UserHandlerV1 interface
+// Get is a method that implements the Get method of the User_V1Server interface
 func (h *UserHandlerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	id := req.GetId()
 
@@ -93,7 +93,7 @@ func (h *UserHandlerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.Ge
 	return &resp, nil
 }
 
-// Update is a method that implements the Update method of the UserHandlerV1 interface
+// Update is a method that implements the Update method of the User_V1Server interface
 func (h *UserHandlerV1) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	buf := strings.Builder{}
 
@@ -122,7 +122,7 @@ func (h *UserHandlerV1) Update(ctx context.Context, req *desc.UpdateRequest) (*e
 	return &emptypb.Empty{}, nil
 }
 
-// Delete is a method that implements the Delete method of the UserHandlerV1 interface
+// Delete is a method that implements the Delete method of the User_V1Server interface
 func (h *UserHandlerV1) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	id := req.GetId()
 
