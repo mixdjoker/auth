@@ -113,6 +113,12 @@ func (h *UserHandlerV1) Update(ctx context.Context, req *desc.UpdateRequest) (*e
 		emailStr := fmt.Sprintf("\tEmail: %v\n", email)
 		buf.WriteString(emailStr)
 	}
+
+	if req.Role != desc.Role_UNKNOWN {
+		roleStr := fmt.Sprintf("\tRole: %v\n", req.GetRole())
+		buf.WriteString(roleStr)
+	}
+
 	if dline, ok := ctx.Deadline(); ok {
 		log.Println(color.BlueString("Deadline: %v", dline))
 	}
