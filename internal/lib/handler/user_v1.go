@@ -45,7 +45,7 @@ func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (
 		s.log.Println(color.BlueString("Deadline: %v", dline))
 	}
 
-	randInt64, err := rand.Int(rand.Reader, new(big.Int).SetInt64(1<<63-1))
+	randInt64, err := rand.Int(rand.Reader, new(big.Int).SetInt64(1<<62))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
