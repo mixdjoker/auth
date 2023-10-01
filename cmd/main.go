@@ -22,7 +22,9 @@ func main() {
 
 	aLog.Println("Starting auth service...")
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort))
+	url := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort)
+
+	lis, err := net.Listen("tcp", url)
 	if err != nil {
 		errStr := fmt.Sprintf("failed to listen: %v", err)
 		aLog.Fatalf(color.RedString(errStr))
@@ -44,7 +46,7 @@ func main() {
 		}
 	}()
 
-	aLog.Println(color.GreenString("Auth service started successfully "), color.BlueString(fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort)))
+	aLog.Println(color.GreenString("Auth service started successfully "), color.BlueString(url))
 
 	<-done
 	s.GracefulStop()
