@@ -31,8 +31,8 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	h := handler.NewUserHandlerV1(aLog)
-	user_v1.RegisterUser_V1Server(s, h)
+	rpcSrvV1 := handler.NewUserRPCServerV1(aLog)
+	user_v1.RegisterUser_V1Server(s, rpcSrvV1)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
