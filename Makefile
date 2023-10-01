@@ -33,9 +33,9 @@ init:
 	make install-deps
 	make get-deps
 
+# API generation
 PHONY: generate
 generate:
-	make clean-api
 	make generate-note-api
 
 PHONY: generate-note-api
@@ -46,16 +46,6 @@ generate-note-api:
 	--go-grpc_out=pkg/user_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/user_v1/user.proto
-
-PHONY: clean-api
-clean-api:
-	rm -rf ./pkg/user_v1
-	mkdir -p ./pkg/user_v1
-
-# Build & Run
-
-clean-bin:
-	$(SILENT) rm -f $(LOCAL_BIN)/$(APP_NAME)
 
 # Local linter run
 PHONY: lint
