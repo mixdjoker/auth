@@ -44,8 +44,7 @@ func main() {
 		}
 	}()
 
-	url := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort)
-	aLog.Println(color.GreenString("Auth service started successfully "), color.BlueString(url))
+	aLog.Println(color.GreenString("Auth service started successfully "), color.BlueString(fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort)))
 
 	<-done
 	s.GracefulStop()
