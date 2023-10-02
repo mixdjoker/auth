@@ -1,0 +1,3 @@
+server:
+  host: "localhost"
+  grpc_port: 8081
