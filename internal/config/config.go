@@ -7,6 +7,10 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+const (
+	_CONFIG_PATH = "./config/auth.yml"
+)
+
 // Config is a struct that holds all the configuration for the service
 type Config struct {
 	Server `yaml:"server"`
@@ -22,8 +26,8 @@ type Server struct {
 func MustConfig() *Config {
 	configPath := os.Getenv("AUTH_CONFIG_PATH")
 	if configPath == "" {
-		log.Println("AUTH_CONFIG_PATH is not set, using default config")
-		configPath = "./config/config.yaml"
+		configPath = _CONFIG_PATH
+		log.Printf("AUTH_CONFIG_PATH is not set, using default config: %s", configPath)
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {

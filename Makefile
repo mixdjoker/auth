@@ -1,9 +1,10 @@
 LOCAL_BIN = $(CURDIR)/bin
+CONF_DIR = $(CURDIR)/config
 GOLINT_VER = 1.53.3
 APP_NAME = auth
 # APP_BIN_DIR = $(LOCAL_BIN)/$(app)
 SOURCE_DIR = $(CURDIR)/cmd
-GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar"
+GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar" GOOS=linux GOARCH=amd64
 
 SILENT = @
 
@@ -61,3 +62,8 @@ build:
 PHONY: run
 run:
 	$(SILENT) $(GO_CMP_ARGS) go run $(SOURCE_DIR)
+
+PHONY: copy-to-server
+copy-to-server:
+	scp -i ~/.ssh/gopher $(LOCAL_BIN)/$(APP_NAME) gopher@course:
+	scp -i ~/.ssh/gopher -r $(CONF_DIR) gopher@course:
