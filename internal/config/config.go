@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	_CONFIG_PATH = "./config/auth.yml"
+	defConfigPath = "./config/auth.yml"
 )
 
 // Config is a struct that holds all the configuration for the service
@@ -26,7 +26,7 @@ type Server struct {
 func MustConfig() *Config {
 	configPath := os.Getenv("AUTH_CONFIG_PATH")
 	if configPath == "" {
-		configPath = _CONFIG_PATH
+		configPath = defConfigPath
 		log.Printf("AUTH_CONFIG_PATH is not set, using default config: %s", configPath)
 	}
 
