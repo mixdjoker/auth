@@ -7,6 +7,7 @@ on:
     branches: [ main ]
 
 env:
+  REGISTRY: "cr.yandex/crpck4rdadj06ebe0if0"
   IMAGE_NAME: "auth-server"
   CONTAINER_NAME: "auth-container"
 
@@ -22,13 +23,13 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Login to Docker Registry
-        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY }}
+        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
       - name: Build and Push Docker Image
         run: |
           TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
-          docker buildx build --no-cache --push --tag ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME -f Dockerfile . 
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME -f Dockerfile . 
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -47,7 +48,7 @@ jobs:
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             
             # Login into Selectel Registry
-            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY }}
+            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
             
             # Stop running container
             docker stop $CONTAINER_NAME
