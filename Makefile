@@ -1,4 +1,5 @@
 LOCAL_BIN = $(CURDIR)/bin
+CONF_DIR = $(CURDIR)/config
 GOLINT_VER = 1.53.3
 APP_NAME = auth
 # APP_BIN_DIR = $(LOCAL_BIN)/$(app)
@@ -61,3 +62,14 @@ build:
 PHONY: run
 run:
 	$(SILENT) $(GO_CMP_ARGS) go run $(SOURCE_DIR)
+
+PHONY: copy-to-server
+copy-to-server:
+	scp -i ~/.ssh/gopher $(LOCAL_BIN)/$(APP_NAME) gopher@course:
+	scp -i ~/.ssh/gopher -r $(CONF_DIR) gopher@course:
+
+# Docker
+docker-build-and-push:
+	docker buildx build --no-cache --platform linux/amd64 -t $(YA_REGISTRY)/test-server:v0.0.1 .
+	docker login -u oauth -p $(YA_TOKEN) $(YA_REGISTRY)
+	docker push $(YA_REGISTRY)/test-server:v0.0.1

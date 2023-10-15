@@ -3,3 +3,6 @@
 
 # Protobuf includes for Wireshark
 /api/user_v1/google/
+
+#Secrets
+.credentials
