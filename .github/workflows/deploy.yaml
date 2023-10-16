@@ -24,7 +24,7 @@ jobs:
 
       - name: Get Git commit version
         id: git-version
-        run: echo "{GIT_HEAD_SHORT}=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "{GIT_HEAD_SHORT}=$(shell git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
