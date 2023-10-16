@@ -27,10 +27,10 @@ jobs:
       #   run: echo ::set-output name=git_head::$(git rev-parse --short HEAD)
       #
       - name: Login to Docker Registry
-        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
+        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
       - name: Build Docker Image
-        run: docker build -t $IMAGE_NAME:latest .
+        run: docker build -t ${IMAGE_NAME}:latest .
       #
       # - name: Build and Push Docker Image
       #   env:
@@ -41,8 +41,8 @@ jobs:
       #
       - name: Push Docker Image to Yandex Cloud Registry
         run: |
-          docker tag $IMAGE_NAME $REGISTRY/$IMAGE_NAME
-          docker push $REGISTRY_URL/$DOCKER_IMAGE
+          docker tag ${IMAGE_NAME} ${REGISTRY}/${IMAGE_NAME}
+          docker push ${REGISTRY}/${IMAGE_NAME}
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -67,4 +67,4 @@ jobs:
             docker stop $CONTAINER_NAME
             
             # Run a new container from a new image
-            docker run --rm -d -p 8081:8081 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
+            docker run --rm -d -p 8081:8081 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:latest
