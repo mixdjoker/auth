@@ -22,13 +22,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Get Git commit version
+        id: git-version
+        run: echo ::set-output name=version::$(git rev-parse --short HEAD)
+
       - name: Login to Docker Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
       - name: Build and Push Docker Image
+        env:
+          TAG_NAME: ${{ steps.git-version.outputs.version }}
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME . 
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:TAG_NAME . 
 
   deploy-image:
     runs-on: ubuntu-latest

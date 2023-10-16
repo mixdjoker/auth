@@ -6,6 +6,8 @@ APP_NAME = auth
 SOURCE_DIR = $(CURDIR)/cmd
 GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar"
 
+GIT_SHORT_HASH := $(shell git rev-parse --short HEAD)
+
 SILENT = @
 
 # Linter installation
@@ -72,4 +74,4 @@ copy-to-server:
 # Docker
 docker-build-and-push:
 	docker login -u oauth -p $(YA_TOKEN) $(YA_REGISTRY)
-	docker buildx build --no-cache --platform linux/amd64 --push --tag $(YA_REGISTRY)/auth-server:07da1bd .
+	docker buildx build --no-cache --platform linux/amd64 --push --tag $(YA_REGISTRY)/${APP_NAME}-server:${GIT_SHORT_HASH} .
