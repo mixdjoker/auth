@@ -18,38 +18,14 @@ jobs:
     steps:
       - name: Checkout master
         uses: actions/checkout@v3
-      #
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v2
-      #
-      # - name: Get Git commit version
-      #   id: git-version
-      #   run: echo ::set-output name=git_head::$(git rev-parse --short HEAD)
-      #
-      - name: Login to Docker Registry
-        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
       - name: Build Docker Image
-        run: |
-          TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-          docker build -t ${IMAGE_NAME}:${TAG_NAME} .
-          docker images
-      #
-      # - name: Build and Push Docker Image
-      #   env:
-      #     TAG_NAME: ${{ steps.git-version.outputs.git_head }}
-      #   run: |
-      #     docker buildx create --use
-      #     docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:v0.0.1 . 
-      #
-      - name: Change Tag
-        run: |
-          docker tag ${IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
-          docker images | grep ${IMAGE_NAME}
+        run: docker build -t ${IMAGE_NAME}:latest .
 
       - name: Push Docker Image to Yandex Cloud Registry
         run: |
-          docker push ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+          docker tag ${IMAGE_NAME} ${REGISTRY}/${IMAGE_NAME}
+          docker push ${REGISTRY}/${IMAGE_NAME}
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -62,16 +38,16 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME
+          envs: IMAGE_NAME,REGISTRY,CONTAINER_NAME
           script: |
             # Set up variables
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+            # TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             
             # Login into Selectel Registry
-            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
+            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
             
             # Stop running container
-            docker stop $CONTAINER_NAME
+            docker stop ${CONTAINER_NAME}
             
             # Run a new container from a new image
-            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:latest
