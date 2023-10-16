@@ -42,11 +42,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY,CONTAINER_NAME
+          envs: IMAGE_NAME,REGISTRY,CONTAINER_NAME,TAG_NAME
           script: |
-            # Set up variables
-            # TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            
             # Login into Selectel Registry
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
             
@@ -54,4 +51,4 @@ jobs:
             docker stop ${CONTAINER_NAME}
             
             # Run a new container from a new image
-            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:latest
+            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
