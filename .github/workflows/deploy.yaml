@@ -44,8 +44,9 @@ jobs:
       #
       - name: Push Docker Image to Yandex Cloud Registry
         run: |
-          docker tag ${IMAGE_NAME} ${REGISTRY}/${IMAGE_NAME}
-          docker push ${REGISTRY}/${IMAGE_NAME}
+          docker tag ${IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+          docker images
+          docker push ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
 
   deploy-image:
     runs-on: ubuntu-latest
