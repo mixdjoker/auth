@@ -30,7 +30,9 @@ jobs:
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
       - name: Build Docker Image
-        run: docker build -t ${IMAGE_NAME}:latest .
+        run: |
+          TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+          docker build -t ${IMAGE_NAME}:${TAG_NAME} .
       #
       # - name: Build and Push Docker Image
       #   env:
@@ -67,4 +69,4 @@ jobs:
             docker stop $CONTAINER_NAME
             
             # Run a new container from a new image
-            docker run --rm -d -p 8081:8081 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:latest
+            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
