@@ -70,7 +70,7 @@ func (s *UserRPCServerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.
 	role := gofakeit.RandString([]string{"ADMIN", "USER"})
 	resp := desc.GetResponse{
 		Id:        req.GetId(),
-		Name:      gofakeit.BeerName(),
+		Name:      gofakeit.Name(),
 		Email:     gofakeit.Email(),
 		Role:      desc.Role(desc.Role_value[role]),
 		CreatedAt: timestamppb.New(gofakeit.Date()),
