@@ -63,6 +63,7 @@ PHONY: run
 run:
 	$(SILENT) $(GO_CMP_ARGS) go run $(SOURCE_DIR)
 
+# Hand deploy
 PHONY: copy-to-server
 copy-to-server:
 	scp -i ~/.ssh/gopher $(LOCAL_BIN)/$(APP_NAME) gopher@course:
@@ -70,6 +71,5 @@ copy-to-server:
 
 # Docker
 docker-build-and-push:
-	docker buildx build --no-cache --platform linux/amd64 -t $(YA_REGISTRY)/test-server:v0.0.1 .
 	docker login -u oauth -p $(YA_TOKEN) $(YA_REGISTRY)
-	docker push $(YA_REGISTRY)/test-server:v0.0.1
+	docker buildx build --no-cache --platform linux/amd64 --push --tag $(YA_REGISTRY)/auth-server:07da1bd .
