@@ -42,10 +42,13 @@ jobs:
       #     docker buildx create --use
       #     docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:v0.0.1 . 
       #
-      - name: Push Docker Image to Yandex Cloud Registry
+      - name: Change Tag
         run: |
           docker tag ${IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
-          docker images
+          docker images | grep ${IMAGE_NAME}
+
+      - name: Push Docker Image to Yandex Cloud Registry
+        run: |
           docker push ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
 
   deploy-image:
