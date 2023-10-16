@@ -10,6 +10,7 @@ env:
   REGISTRY: "cr.yandex/crpck4rdadj06ebe0if0"
   IMAGE_NAME: "auth-server"
   CONTAINER_NAME: "auth-container"
+  TAG_NAME: ${{ github.head_ref }}
 
 jobs:
   image-build-and-push:
@@ -20,15 +21,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Docker Image
-        run: docker build -t ${IMAGE_NAME}:${{ github.head_ref }} .
+        run: docker build -t ${IMAGE_NAME}:${TAG_NAME} .
 
       - name: Login to Yandex Cloud Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
       - name: Push Docker Image to Yandex Cloud Registry
         run: |
-          docker tag ${IMAGE_NAME}:${{ github.head_ref }} ${REGISTRY}/${IMAGE_NAME}:${{ github.head_ref }}
-          docker push ${REGISTRY}/${IMAGE_NAME}:${{ github.head_ref }}
+          docker tag ${IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+          docker push ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
 
   deploy-image:
     runs-on: ubuntu-latest
