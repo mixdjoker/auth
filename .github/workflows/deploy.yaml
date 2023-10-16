@@ -34,7 +34,7 @@ jobs:
           TAG_NAME: ${{ steps.git-version.outputs.git_head }}
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
+          docker buildx build --no-cache --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
           docker push $REGISTRY/$IMAGE_NAME:$TAG_NAME
 
   deploy-image:
