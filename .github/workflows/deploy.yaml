@@ -24,18 +24,18 @@ jobs:
 
       - name: Get Git commit version
         id: git-version
-        run: echo "{GIT_HEAD_SHORT}=$(shell git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo ::set-output name=git_head::$(git rev-parse --short HEAD)
 
       - name: Login to Docker Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         env:
-          TAG: ${{ steps.git-version.outputs.GIT_HEAD_SHORT }}
+          TAG_NAME: ${{ steps.git-version.outputs.git_head }}
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --tag $REGISTRY/$IMAGE_NAME:$TAG .
-          docker push $REGISTRY/$IMAGE_NAME:$TAG
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
+          docker push $REGISTRY/$IMAGE_NAME:$TAG_NAME
 
   deploy-image:
     runs-on: ubuntu-latest
