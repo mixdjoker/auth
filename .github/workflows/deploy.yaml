@@ -33,6 +33,7 @@ jobs:
         run: |
           TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker build -t ${IMAGE_NAME}:${TAG_NAME} .
+          docker images
       #
       # - name: Build and Push Docker Image
       #   env:
