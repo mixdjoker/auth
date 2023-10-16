@@ -20,15 +20,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Docker Image
-        run: docker build -t ${IMAGE_NAME}:latest .
+        run: docker build -t ${IMAGE_NAME}:${{ github.head_ref }} .
 
       - name: Login to Yandex Cloud Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
       - name: Push Docker Image to Yandex Cloud Registry
         run: |
-          docker tag ${IMAGE_NAME} ${REGISTRY}/${IMAGE_NAME}
-          docker push ${REGISTRY}/${IMAGE_NAME}
+          docker tag ${IMAGE_NAME}:${{ github.head_ref }} ${REGISTRY}/${IMAGE_NAME}:${{ github.head_ref }}
+        docker push ${REGISTRY}/${IMAGE_NAME}:${{ github.head_ref }}
 
   deploy-image:
     runs-on: ubuntu-latest
