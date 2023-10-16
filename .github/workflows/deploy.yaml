@@ -10,7 +10,7 @@ env:
   REGISTRY: "cr.yandex/crpck4rdadj06ebe0if0"
   IMAGE_NAME: "auth-server"
   CONTAINER_NAME: "auth-container"
-  TAG_NAME: ${{ github.head_ref }}
+  TAG_NAME: ${{ github.sha }}
 
 jobs:
   image-build-and-push:
