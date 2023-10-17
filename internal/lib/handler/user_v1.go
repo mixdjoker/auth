@@ -2,14 +2,13 @@ package handler
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"log"
-	"math/big"
 	"strings"
+	"time"
 
-	"github.com/brianvoe/gofakeit"
 	"github.com/fatih/color"
+	"github.com/mixdjoker/auth/internal/model"
 	desc "github.com/mixdjoker/auth/pkg/user_v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,21 +16,34 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type UserRepository interface {
+	Create(context.Context, model.User) (int64, error)
+	Get(context.Context, int64) (model.User, error)
+	Update(context.Context, model.User) error
+	Delete(context.Context, int64) error
+}
+
 // UserRPCServerV1 is a struct that implements the User_V1Server interface
 type UserRPCServerV1 struct {
 	desc.UnimplementedUser_V1Server
 	log *log.Logger
+	repo UserRepository
 }
 
 // NewUserRPCServerV1 returns a new UserRPCServerV1
-func NewUserRPCServerV1(log *log.Logger) *UserRPCServerV1 {
+func NewUserRPCServerV1(log *log.Logger, r UserRepository) *UserRPCServerV1 {
 	return &UserRPCServerV1{
 		log: log,
+		repo: r,
 	}
 }
 
 // Create is a method that implements the Create method of the User_V1Server interface
 func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	var (
+		u  model.User
+	)
+
 	resStr := fmt.Sprintf("Received Create:\n\tName: %v,\n\tEmail: %v,\n\tPassword: %v,\n\tPassword confirm: %v,\n\tRole: %v\n",
 		req.GetName(),
 		req.GetEmail(),
@@ -45,11 +57,20 @@ func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (
 		s.log.Println(color.BlueString("Deadline: %v", dline))
 	}
 
-	randInt64, err := rand.Int(rand.Reader, new(big.Int).SetInt64(1<<62))
+	err := validateUserCreateRequest(req)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, err.Error())
+		return nil, err
 	}
-	id := randInt64.Int64()
+
+	u.Name = req.GetName()
+	u.Email = req.GetEmail()
+	u.Password = req.GetPassword()
+	u.Role = int(req.GetRole())
+
+	id, err := s.repo.Create(ctx, u)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	respStr := fmt.Sprintf("Response Create:\n\tId: %v\n", id)
 	s.log.Println(color.GreenString(respStr))
@@ -67,16 +88,20 @@ func (s *UserRPCServerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.
 		s.log.Println(color.BlueString("Deadline: %v", dline))
 	}
 
-	role := gofakeit.RandString([]string{"ADMIN", "USER"})
-	resp := desc.GetResponse{
-		Id:        req.GetId(),
-		Name:      gofakeit.Name(),
-		Email:     gofakeit.Email(),
-		Role:      desc.Role(desc.Role_value[role]),
-		CreatedAt: timestamppb.New(gofakeit.Date()),
-		UpdatedAt: timestamppb.New(gofakeit.Date()),
+	u, err := s.repo.Get(ctx, req.GetId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	resp := desc.GetResponse{
+		Id:        u.ID,
+		Name:      u.Name,
+		Email:     u.Email,
+		Role:      desc.Role(u.Role),
+		CreatedAt: timestamppb.New(time.Unix(u.CreatedAt, 0)),
+		UpdatedAt: timestamppb.New(time.Unix(u.UpdatedAt, 0)),
+	}
+	
 	respStr := fmt.Sprintf("Response Get:\n\tId: %v,\n\tName: %v,\n\tEmail: %v,\n\tRole: %v,\n\tCreatedAt: %v,\n\tUpdatedAt: %v\n",
 		resp.Id,
 		resp.Name,
@@ -94,20 +119,26 @@ func (s *UserRPCServerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.
 // Update is a method that implements the Update method of the User_V1Server interface
 func (s *UserRPCServerV1) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	buf := strings.Builder{}
+	u := model.User{}
 	buf.WriteString("Received Update:\n")
+
 	idStr := fmt.Sprintf("\tId: %v\n", req.GetId())
+	u.ID = req.GetId()
 	buf.WriteString(idStr)
 
 	if req.Name != nil {
 		buf.WriteString(fmt.Sprintf("\tName: %v\n", req.GetName().GetValue()))
+		u.Name = req.GetName().GetValue()
 	}
 
 	if req.Email != nil {
 		buf.WriteString(fmt.Sprintf("\tEmail: %v\n", req.GetEmail().GetValue()))
+		u.Email = req.GetEmail().GetValue()
 	}
 
 	if req.Role != desc.Role_UNKNOWN {
 		buf.WriteString(fmt.Sprintf("\tRole: %v\n", req.GetRole()))
+		u.Role = int(req.GetRole())
 	}
 
 	if dline, ok := ctx.Deadline(); ok {
@@ -115,6 +146,11 @@ func (s *UserRPCServerV1) Update(ctx context.Context, req *desc.UpdateRequest) (
 	}
 
 	s.log.Println(color.BlueString(buf.String()))
+
+	err := s.repo.Update(ctx, u)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -127,5 +163,26 @@ func (s *UserRPCServerV1) Delete(ctx context.Context, req *desc.DeleteRequest) (
 
 	log.Println(color.BlueString("Received Delete:\n\tId: %v", req.GetId()))
 
+	err := s.repo.Delete(ctx, req.GetId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
+}
+
+func validateUserCreateRequest(req *desc.CreateRequest) error {
+	if req.GetPassword() != req.GetPasswordConfirm() {
+		return status.Error(codes.InvalidArgument, "passwords do not match")
+	}
+
+	if req.GetRole() == desc.Role_UNKNOWN {
+		return status.Error(codes.InvalidArgument, "role is unknown")
+	}
+
+	if req.GetEmail() == "" {
+		return status.Error(codes.InvalidArgument, "email is empty")
+	}
+
+	return nil
 }

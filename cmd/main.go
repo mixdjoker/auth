@@ -11,6 +11,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mixdjoker/auth/internal/config"
 	"github.com/mixdjoker/auth/internal/lib/handler"
+	"github.com/mixdjoker/auth/internal/storage/ram"
 	"github.com/mixdjoker/auth/pkg/user_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -33,7 +34,9 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	rpcSrvV1 := handler.NewUserRPCServerV1(aLog)
+	rp := ram.NewUserStore()
+
+	rpcSrvV1 := handler.NewUserRPCServerV1(aLog, rp)
 	user_v1.RegisterUser_V1Server(s, rpcSrvV1)
 
 	done := make(chan os.Signal, 1)
