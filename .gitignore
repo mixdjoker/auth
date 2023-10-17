@@ -6,3 +6,6 @@
 
 #Secrets
 .credentials
+
+#DBA
+admins-command.sql
