@@ -40,9 +40,7 @@ func NewUserRPCServerV1(log *log.Logger, r UserRepository) *UserRPCServerV1 {
 
 // Create is a method that implements the Create method of the User_V1Server interface
 func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
-	var (
-		u  model.User
-	)
+	u := model.User{}
 
 	resStr := fmt.Sprintf("Received Create:\n\tName: %v,\n\tEmail: %v,\n\tPassword: %v,\n\tPassword confirm: %v,\n\tRole: %v\n",
 		req.GetName(),
@@ -69,6 +67,10 @@ func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (
 
 	id, err := s.repo.Create(ctx, u)
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "user with email") && strings.HasSuffix(err.Error(), "already exists") {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -90,6 +92,9 @@ func (s *UserRPCServerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.
 
 	u, err := s.repo.Get(ctx, req.GetId())
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

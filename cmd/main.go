@@ -11,6 +11,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mixdjoker/auth/internal/config"
 	"github.com/mixdjoker/auth/internal/lib/handler"
+	"github.com/mixdjoker/auth/internal/storage/psql"
 	"github.com/mixdjoker/auth/internal/storage/ram"
 	"github.com/mixdjoker/auth/pkg/user_v1"
 	"google.golang.org/grpc"
@@ -23,7 +24,7 @@ func main() {
 
 	aLog.Println("Starting auth service...")
 
-	url := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.GRPCPort)
+	url := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 
 	lis, err := net.Listen("tcp", url)
 	if err != nil {
@@ -34,9 +35,16 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	rp := ram.NewUserStore()
+	var repo handler.UserRepository
 
-	rpcSrvV1 := handler.NewUserRPCServerV1(aLog, rp)
+	switch cfg.Storage.DBType {
+	case "inram":
+		repo = ram.NewUserStore()
+	case "postgres":
+		repo = psql.NewUserStore(cfg)
+	}
+
+	rpcSrvV1 := handler.NewUserRPCServerV1(aLog, repo)
 	user_v1.RegisterUser_V1Server(s, rpcSrvV1)
 
 	done := make(chan os.Signal, 1)

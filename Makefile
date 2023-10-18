@@ -16,7 +16,7 @@ GOOSE_VER = v3.14.0
 GIT_SHORT_HASH := $(shell git rev-parse --short HEAD)
 
 LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
-LOCAL_MIGRATION_DSN="host=localhost port=$(PG_PORT) dbname=$(PG_DATABASE_NAME) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
+LOCAL_MIGRATION_DSN="host=$(PG_HOST) port=$(PG_PORT) dbname=$(PG_DATABASE) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
 
 SILENT = @
 
@@ -96,7 +96,11 @@ local-migration-up:
 local-migration-down:
 	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} down -v
 
-# _black magic_ ARGS Reading
+#################
+## Black Magic ##
+#################
+
+# ARGS Reading
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@:

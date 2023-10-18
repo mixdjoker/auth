@@ -1,3 +1,12 @@
 server:
   host: "0.0.0.0"
   grpc_port: 8081
+
+storage:
+  db_type: inram      # change through: [ postgres, inram ]
+  postgres:
+    host: PG_HOST
+    port: PG_PORT
+    user: PG_USER
+    passEnv: PG_PASSWORD
+    database: PG_DATABASE

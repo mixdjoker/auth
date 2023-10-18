@@ -30,10 +30,8 @@ func (s *UserStore) Create(ctx context.Context, u model.User) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if exID, ok := s.mails[u.Email]; ok {
-		exUser := s.users[exID]
-		errStr := fmt.Sprintf("email already exists: user %v with id %v has this email", exUser.Name, exUser.ID)
-		return 0, errors.New(errStr)
+	if _, ok := s.mails[u.Email]; ok {
+		return 0, fmt.Errorf("user with email \"%s\" already exists", u.Email)
 	}
 	u.ID = s.counter
 	t := time.Now()
@@ -54,7 +52,7 @@ func (s *UserStore) Get(ctx context.Context, id int64) (model.User, error) {
 		return s.users[id], nil
 	}
 
-	return model.User{}, errors.New("user not found")
+	return model.User{}, fmt.Errorf("user with id %d not found", id)
 }
 
 func (s *UserStore) Update(ctx context.Context, u model.User) error {
