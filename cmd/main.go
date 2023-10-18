@@ -20,7 +20,7 @@ import (
 
 func main() {
 	cfg := config.MustConfig()
-	aLog := log.New(os.Stdout, color.CyanString("[INFO] "), log.LstdFlags)
+	aLog := log.New(os.Stdout, color.CyanString("[AUTH] "), log.LstdFlags)
 
 	aLog.Println("Starting auth service...")
 
@@ -42,6 +42,9 @@ func main() {
 		repo = ram.NewUserStore()
 	case "postgres":
 		repo = psql.NewUserStore(cfg)
+	default:
+		errStr := fmt.Sprintf("unknown db type: %s", cfg.Storage.DBType)
+		aLog.Fatalf(color.RedString(errStr))
 	}
 
 	rpcSrvV1 := handler.NewUserRPCServerV1(aLog, repo)

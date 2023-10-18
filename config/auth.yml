@@ -3,7 +3,7 @@ server:
   grpc_port: 8081
 
 storage:
-  db_type: inram      # change through: [ postgres, inram ]
+  db_type: postgres      # change through: [ postgres, inram ]
   postgres:
     host: PG_HOST
     port: PG_PORT

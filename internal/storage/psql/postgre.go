@@ -103,7 +103,13 @@ func (s *UserStore) Get(ctx context.Context, id int64) (model.User, error) {
 }
 
 func (s *UserStore) Update(ctx context.Context, u model.User) error {
-	updateBuilder := sq.Update("public.users").Where(sq.Eq{"id": u.ID})
+	err := s.checkExistance(ctx, u.ID)
+	if err != nil {
+		return err
+	}
+	
+	updateBuilder := sq.Update("public.users").Where(sq.Eq{"id": u.ID}).PlaceholderFormat(sq.Dollar)
+
 	if u.Name != "" {
 		updateBuilder = updateBuilder.Set("name", u.Name)
 	}
@@ -116,9 +122,33 @@ func (s *UserStore) Update(ctx context.Context, u model.User) error {
 	if u.Role != 0 {
 		updateBuilder = updateBuilder.Set("role", u.Role)
 	}
-	updateBuilder = updateBuilder.Set("update_at", time.Now())
+	updateBuilder = updateBuilder.Set("update_at", time.Now()).Suffix("RETURNING id")
 
 	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint \"users_email_un\"") {
+			return fmt.Errorf("email \"%s\" already exists", u.Email)
+		}
+
+		return err
+	}
+
+	return nil
+}
+func (s *UserStore) Delete(ctx context.Context, id int64) error {
+	err := s.checkExistance(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	deleteBuilder := sq.Delete("public.users").Where(sq.Eq{"id": id}).PlaceholderFormat(sq.Dollar)
+
+	query, args, err := deleteBuilder.ToSql()
 	if err != nil {
 		return err
 	}
@@ -130,9 +160,27 @@ func (s *UserStore) Update(ctx context.Context, u model.User) error {
 
 	return nil
 }
-func (s *UserStore) Delete(ctx context.Context, id int64) error {
-	_, err := s.pool.Exec(ctx, "DELETE FROM public.users WHERE id = $1", id)
+
+func (s *UserStore) checkExistance(ctx context.Context, id int64) error {
+	var u model.User
+
+	selectBuilder := sq.Select("id").
+		PlaceholderFormat(sq.Dollar).
+		From("public.users").
+		Where(sq.Eq{"id": id}).
+		Limit(1)
+
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
+		return err
+	}
+
+	err = s.pool.QueryRow(ctx, query, args...).Scan(&u.ID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return fmt.Errorf("user with id %d not found", id)
+		}
+
 		return err
 	}
 

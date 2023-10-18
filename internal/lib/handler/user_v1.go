@@ -154,6 +154,13 @@ func (s *UserRPCServerV1) Update(ctx context.Context, req *desc.UpdateRequest) (
 
 	err := s.repo.Update(ctx, u)
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		if strings.HasPrefix(err.Error(), "email") && strings.HasSuffix(err.Error(), "already exists") {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -170,6 +177,10 @@ func (s *UserRPCServerV1) Delete(ctx context.Context, req *desc.DeleteRequest) (
 
 	err := s.repo.Delete(ctx, req.GetId())
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
