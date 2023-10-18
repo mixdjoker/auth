@@ -21,6 +21,7 @@ type UserRepository interface {
 	Get(context.Context, int64) (model.User, error)
 	Update(context.Context, model.User) error
 	Delete(context.Context, int64) error
+	Close()
 }
 
 // UserRPCServerV1 is a struct that implements the User_V1Server interface
@@ -67,8 +68,13 @@ func (s *UserRPCServerV1) Create(ctx context.Context, req *desc.CreateRequest) (
 
 	id, err := s.repo.Create(ctx, u)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "user with email") && strings.HasSuffix(err.Error(), "already exists") {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+		s.log.Println(color.RedString("Error Create: %v", err))
+
+		if outErr, ok := errUserEmailExists(err); ok {
+			return nil, outErr
+		}
+		if outErr, ok := errDBConnectCheck(err); ok {
+			return nil, outErr
 		}
 
 		return nil, status.Error(codes.Internal, err.Error())
@@ -92,9 +98,15 @@ func (s *UserRPCServerV1) Get(ctx context.Context, req *desc.GetRequest) (*desc.
 
 	u, err := s.repo.Get(ctx, req.GetId())
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
-			return nil, status.Error(codes.NotFound, err.Error())
+		s.log.Println(color.RedString("Error Get: %v", err))
+
+		if outErr, ok := errUserNotFound(err); ok {
+			return nil, outErr
 		}
+		if outErr, ok := errDBConnectCheck(err); ok {
+			return nil, outErr
+		}
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -154,11 +166,16 @@ func (s *UserRPCServerV1) Update(ctx context.Context, req *desc.UpdateRequest) (
 
 	err := s.repo.Update(ctx, u)
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
-			return nil, status.Error(codes.NotFound, err.Error())
+		s.log.Println(color.RedString("Error Update: %v", err))
+
+		if outErr, ok := errUserNotFound(err); ok {
+			return nil, outErr
 		}
-		if strings.HasPrefix(err.Error(), "email") && strings.HasSuffix(err.Error(), "already exists") {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+		if outErr, ok := errUserEmailExists(err); ok {
+			return nil, outErr
+		}
+		if outErr, ok := errDBConnectCheck(err); ok {
+			return nil, outErr
 		}
 
 		return nil, status.Error(codes.Internal, err.Error())
@@ -177,8 +194,13 @@ func (s *UserRPCServerV1) Delete(ctx context.Context, req *desc.DeleteRequest) (
 
 	err := s.repo.Delete(ctx, req.GetId())
 	if err != nil {
-		if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
-			return nil, status.Error(codes.NotFound, err.Error())
+		s.log.Println(color.RedString("Error Delete: %v", err))
+
+		if outErr, ok := errUserNotFound(err); ok {
+			return nil, outErr
+		}
+		if outErr, ok := errDBConnectCheck(err); ok {
+			return nil, outErr
 		}
 
 		return nil, status.Error(codes.Internal, err.Error())
@@ -201,4 +223,28 @@ func validateUserCreateRequest(req *desc.CreateRequest) error {
 	}
 
 	return nil
+}
+
+func errDBConnectCheck(err error) (error, bool) {
+	if strings.HasPrefix(err.Error(), "failed to connect to") {
+		return status.Error(codes.Internal, "failed to connect to database"), true
+	}
+
+	return err, false
+}
+
+func errUserNotFound(err error) (error, bool) {
+	if strings.HasPrefix(err.Error(), "user with id") && strings.HasSuffix(err.Error(), "not found") {
+		return status.Error(codes.NotFound, err.Error()), true
+	}
+
+	return err, false
+}
+
+func errUserEmailExists(err error) (error, bool) {
+	if strings.HasPrefix(err.Error(), "user with email") && strings.HasSuffix(err.Error(), "already exists") {
+		return status.Error(codes.InvalidArgument, err.Error()), true
+	}
+
+	return err, false
 }

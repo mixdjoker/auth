@@ -26,6 +26,8 @@ func NewUserStore() *UserStore {
 	}
 }
 
+func (s *UserStore) Close() {}
+
 func (s *UserStore) Create(ctx context.Context, u model.User) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

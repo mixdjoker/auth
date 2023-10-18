@@ -60,9 +60,12 @@ func main() {
 		}
 	}()
 
-	aLog.Println(color.GreenString("Auth service started successfully "), color.BlueString(url))
+	aLog.Println(color.GreenString("Auth server started successfully "), color.BlueString(url))
 
 	<-done
 	s.GracefulStop()
 	aLog.Println(color.YellowString("Auth service stopped"))
+
+	repo.Close()
+	aLog.Println(color.YellowString("Auth server repo closed"))
 }
