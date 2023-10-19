@@ -1,0 +1,12 @@
+server:
+  host: APP_HOST
+  port: APP_PORT
+
+storage:
+  db_type: inram # Switch from [ inram, postgres ]
+  postgras:
+    host: PG_HOST
+    port: PG_PORT
+    user: PG_USER
+    pass: PG_PASSWORD
+    database: PG_DATABASE

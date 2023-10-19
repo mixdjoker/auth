@@ -21,3 +21,39 @@ make copy-to-server
 ```
 
 *new_ip_address* - IP Address сервера
+
+## Docker
+
+### Docker-images
+
+1. Postgres postgres:14-alpine
+2. Auth service:
+    - auth-dev
+    - auth-prod
+3. Migration
+
+### Compose
+
+**Prod**
+
+Files:
+- ./infrastructure/db-prod.yml
+- ./infrastructure/srv-prod.yml
+
+Network:
+- auth-prod
+
+Volumes:
+- auth-postgres-prod
+
+**Dev**
+
+Files:
+- ./infrastructure/db-dev.yml
+- ./infrastructure/srv-dev.yml
+
+Network:
+- auth-dev
+
+Volumes:
+- auth-postgres-dev

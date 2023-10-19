@@ -1,0 +1,26 @@
+name: dev-db
+
+services:
+  dev-pg:
+    image: postgres:14-alpine3.17
+    environment:
+      POSTGRES_DB: ${PG_DATABASE:-}
+      POSTGRES_USER: ${PG_USER:-}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-}
+    ports:
+      - mode: ingress
+        target: ${PG_PORT:-}
+        published: ${PG_EXT_PORT:-}
+        protocol: tcp
+    volumes:
+      - dev-volume:/var/lib/postgresql/data
+    networks:
+      - dev_network
+    restart: on-failure
+
+volumes:
+  dev-volume:
+
+networks:
+  dev_network:
+    driver: default

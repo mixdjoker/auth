@@ -10,7 +10,5 @@ FROM alpine:latest
 
 WORKDIR /root/
 COPY --from=builder /app-src/bin/auth ./auth
-COPY ./config ./config
 
-ENV AUTH_CONFIG_PATH=./config/auth.yml
 CMD [ "./auth" ]

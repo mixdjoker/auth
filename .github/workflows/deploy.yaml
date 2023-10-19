@@ -1,39 +1,72 @@
 name: Deploy
 
 on:
-  push:
-    branches: [ main, dev ]
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
 
 env:
   REGISTRY: "cr.yandex/crpck4rdadj06ebe0if0"
-  IMAGE_NAME: "auth-server"
-  CONTAINER_NAME: "auth-container"
+  APP_IMAGE_NAME: "auth-server"
+  DB_IMAGE_NAME: "psql-server"
+  APP_CONTAINER_NAME: "auth-container"
+  DB_CONTAINER_NAME: "psql-container"
   TAG_NAME: ${{ github.sha }}
 
 jobs:
-  image-build-and-push:
+  images-build-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout master
         uses: actions/checkout@v3
 
-      - name: Build Docker Image
-        run: docker build -t ${IMAGE_NAME}:${TAG_NAME} .
-
       - name: Login to Yandex Cloud Registry
         run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
 
-      - name: Push Docker Image to Yandex Cloud Registry
-        run: |
-          docker tag ${IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
-          docker push ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+      - name: Build App Docker Image
+        run: docker build -t ${APP_IMAGE_NAME}:${TAG_NAME} .
 
+      - name: Push App Docker Image to Yandex Cloud Registry
+        run: |
+          docker tag ${APP_IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${APP_IMAGE_NAME}:${TAG_NAME}
+          docker push ${REGISTRY}/${APP_IMAGE_NAME}:${TAG_NAME}
+
+      - name: Build Migration Docker Image
+        run:  docker build -f migration.Dockerfile -t ${DB_IMAGE_NAME}:${TAG_NAME} .
+
+      - name: Push Migration Docker Image to Yandex Cloud Registry
+        run: |
+          docker tag ${DB_IMAGE_NAME}:${TAG_NAME} ${REGISTRY}/${DB_IMAGE_NAME}:${TAG_NAME}
+          docker push ${REGISTRY}/${DB_IMAGE_NAME}:${TAG_NAME}
+
+  check_and_start_postgresql:
+    runs-on: ubuntu-latest
+    needs: images-build-and-push
+
+    steps:
+      - name: Check and Run Postgre in Yandex Cloud
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          envs: DB_IMAGE_NAME,DB_CONTAINER_NAME
+          script: |
+            if [ "$(docker ps -q -f name=${DB_CONTAINER_NAME})" ]; then
+              echo "PostgreSQL container is running."
+            else
+              echo "PostgreSQL container is not running."
+              echo "Starting PostgreSQL container..."
+              docker run -d --name ${DB_CONTAINER_NAME} -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres:14-alpine
+              sleep 15 
+              echo "PostgreSQL container is now running."
+            fi
+ 
   deploy-image:
     runs-on: ubuntu-latest
-    needs: image-build-and-push
+    needs: check_and_start_postgresql
 
     steps:
       - name: Deploy to Yandex Cloud via SSH action
@@ -42,13 +75,13 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY,CONTAINER_NAME,TAG_NAME
+          envs: APP_IMAGE_NAME,REGISTRY,APP_CONTAINER_NAME,TAG_NAME
           script: |
             # Login into Selectel Registry
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${REGISTRY}
             
             # Stop running container
-            docker stop ${CONTAINER_NAME}
+            docker stop ${APP_CONTAINER_NAME}
             
             # Run a new container from a new image
-            docker run --rm -d -p 8081:8081 --name ${CONTAINER_NAME} -t ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+            docker run --rm -d -p 8081:8081 --name ${APP_CONTAINER_NAME} -t ${REGISTRY}/${APP_IMAGE_NAME}:${TAG_NAME}
