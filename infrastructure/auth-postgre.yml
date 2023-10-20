@@ -1,16 +1,19 @@
-name: database
+name: auth-db
 
 services:
   auth-pg:
     image: postgres:14-alpine3.17
+    env_file:
+      - ../.env
     environment:
-      POSTGRES_DB: ${PG_DATABASE:-}
-      POSTGRES_USER: ${PG_USER:-}
-      POSTGRES_PASSWORD: ${PG_PASSWORD:-}
+      - POSTGRES_DB=PG_DATABASE
+      - POSTGRES_USER=PG_USER
+      - POSTGRES_PASSWORD=PG_PASSWORD
+      - POSTGRES_PORT=PG_PORT
     ports:
       - mode: ingress
-        target: ${PG_PORT:-}
-        published: ${PG_EXT_PORT:-}
+        target: POSTGRES_PORT
+        published: 54321
         protocol: tcp
     volumes:
      - type: volume
@@ -27,4 +30,3 @@ volumes:
 networks:
   auth-network:
     name: auth-app-network
-    driver: default

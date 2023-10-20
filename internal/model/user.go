@@ -1,11 +1,16 @@
 package model
 
+import (
+	"database/sql"
+	"time"
+)
+
 type User struct {
 	ID        int64
 	Name      string
 	Email     string
 	Password  string
 	Role      int
-	CreatedAt int64
-	UpdatedAt int64
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }

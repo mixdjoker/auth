@@ -39,7 +39,7 @@ type Postgres struct {
 }
 
 // MustConfig reads the config from the environment and panics if it fails
-func MustConfig() *Config {
+func MustConfig() error {
 	configPath := os.Getenv("AUTH_CONFIG_PATH")
 	if configPath == "" {
 		configPath = defConfigPath
@@ -56,5 +56,5 @@ func MustConfig() *Config {
 		log.Fatalf("failed to read config: %v", err)
 	}
 
-	return &cfg
+	return nil
 }
