@@ -1,0 +1,11 @@
+[Unit]
+Description=PostgreSQL Docker Compose service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/gopher
+ExecStart=/home/gopher/auth-postgre-compose.sh
+
+[Install]
+WantedBy=multi-user.target
