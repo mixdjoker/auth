@@ -1,7 +1,6 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -12,5 +11,5 @@ type User struct {
 	Password  string
 	Role      int
 	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	UpdatedAt time.Time
 }

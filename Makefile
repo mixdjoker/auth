@@ -1,4 +1,5 @@
 include .env
+include .credentials
 
 LOCAL_BIN = $(CURDIR)/bin
 CONF_DIR = $(CURDIR)/config
@@ -26,7 +27,7 @@ MIGRATION_IMAGE = $(APP_NAME)-migration
 GIT_SHORT_HASH := $(shell git rev-parse --short HEAD)
 
 LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
-LOCAL_MIGRATION_DSN="host=$(PG_HOST) port=$(PG_PORT) dbname=$(PG_DATABASE) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
+LOCAL_MIGRATION_DSN="host=$(PG_HOST) port=$(PG_LOCAL_PORT) dbname=$(PG_DATABASE) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
 
 SILENT = @
 
@@ -80,8 +81,15 @@ build:
 # Make run
 PHONY: run
 run:
-	source .env
 	$(SILENT) $(GO_CMP_ARGS) go run $(SOURCE_DIR)
+
+#################
+## Git Section ##
+#################
+
+git-commit-all:
+	git add .
+	git commit -m "$(ARGS)"
 
 # Hand deploy
 PHONY: copy-to-server
@@ -97,12 +105,12 @@ compose-build:
 	docker login -u oauth -p $(YA_TOKEN) $(YA_REGISTRY)
 	docker buildx build --no-cache --platform linux/amd64 --push --tag $(YA_REGISTRY)/$(APP_NAME)-server:$(GIT_SHORT_HASH) .
 
-compose-up:
-	docker compose up -d
+compose-db-up:
+	docker compose -f ./infrastructure/auth-postgre.yml up -d
 
-compose-down:
-	docker compose down
-
+compose-db-down:
+	docker compose -f ./infrastructure/auth-postgre.yml down
+	
 #################
 ## DBA Section ##
 #################

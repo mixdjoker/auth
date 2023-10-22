@@ -2,10 +2,19 @@ package app
 
 import (
 	"context"
+	"log"
+	"net"
 
-	"github.com/mixdjoker/auth/internal/config"
+	"github.com/fatih/color"
+	"github.com/mixdjoker/auth/internal/closer"
+	desc "github.com/mixdjoker/auth/pkg/user_v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
+)
+
+const (
+	appName = "auth"
 )
 
 type App struct {
@@ -35,9 +44,8 @@ func (a *App) Run() error {
 
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
-		a.initConfig,
 		a.initServiceProvider,
-		a.initGRPCServer,
+		a.initGrpcServer,
 	}
 
 	for _, f := range inits {
@@ -50,34 +58,25 @@ func (a *App) initDeps(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initConfig(_ context.Context) error {
-	err := config.MustConfig()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (a *App) initServiceProvider(_ context.Context) error {
 	a.serviceProvider = newServiceProvider()
 	return nil
 }
 
-func (a *App) initGRPCServer(ctx context.Context) error {
+func (a *App) initGrpcServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
 
 	reflection.Register(a.grpcServer)
 
-	desc.RegisterNoteV1Server(a.grpcServer, a.serviceProvider.NoteImpl(ctx))
+	desc.RegisterUser_V1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
 
 	return nil
 }
 
 func (a *App) runGRPCServer() error {
-	log.Printf("GRPC server is running on %s", a.serviceProvider.GRPCConfig().Address())
+	log.Printf("Trying to start [%s] server on %s", color.BlueString(appName), a.serviceProvider.GrpcConfig().Address())
 
-	list, err := net.Listen("tcp", a.serviceProvider.GRPCConfig().Address())
+	list, err := net.Listen("tcp", a.serviceProvider.GrpcConfig().Address())
 	if err != nil {
 		return err
 	}
