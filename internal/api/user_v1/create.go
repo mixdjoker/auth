@@ -14,11 +14,11 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 	reqBuf := strings.Builder{}
 	reqBuf.WriteString("CreateRequest {\n")
 	fmt.Fprintf(&reqBuf, "\tName: %s,\n\tEmail: %s,\n\tPassword: %s,\n\tPassword confirm: %s,\n\tRole: %s\n",
-		req.GetName(),
-		req.GetEmail(),
-		req.GetPassword(),
-		req.GetPasswordConfirm(),
-		req.GetRole().String(),
+		req.User.Name.Value,
+		req.User.Email.Value,
+		req.Password.Value,
+		req.PasswordConfirm.Value,
+		req.User.Role.String(),
 	)
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())

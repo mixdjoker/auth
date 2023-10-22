@@ -15,10 +15,10 @@ func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*
 	reqBuf := strings.Builder{}
 	reqBuf.WriteString("UpdateRequest {\n")
 	fmt.Fprintf(&reqBuf, "\tId: %d,\n\tName: %s\n\tEmail: %s\n\tRole: %s\n",
-		req.GetId(),
-		req.GetName(),
-		req.GetEmail(),
-		req.GetRole().String(),
+		req.Id.Value,
+		req.User.Name.Value,
+		req.User.Email.Value,
+		req.User.Role.String(),
 	)
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())

@@ -13,7 +13,7 @@ import (
 
 func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	reqBuf := strings.Builder{}
-	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.GetId())
+	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.Id.Value)
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
 	}
