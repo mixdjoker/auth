@@ -27,11 +27,6 @@ message User {
     Role role = 3;
 }
 
-message UserCredential {
-    User user = 1;
-    google.protobuf.StringValue password = 2;
-}
-
 message UserInfo {
     google.protobuf.Int64Value id = 1;
     User user = 2;
@@ -42,7 +37,7 @@ message UserInfo {
 message CreateRequest {
     User user = 1;
     google.protobuf.StringValue password = 2;
-    google.protobuf.StringValue password_confirm = 2;
+    google.protobuf.StringValue password_confirm = 3;
 }
 
 message CreateResponse {
