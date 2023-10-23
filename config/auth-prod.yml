@@ -1,5 +1,5 @@
 env_file:
-  path: ./.env
+  path: ./config/.prod.env
 
 grpc:
   host: GRPC_HOST

@@ -4,7 +4,7 @@ services:
   auth-pg:
     image: postgres:14-alpine3.17
     env_file:
-      - ../.env
+      - "../${ENV_FILE}"
     ports:
       - "${PG_LOCAL_PORT}:${PG_PORT}"
     volumes:
