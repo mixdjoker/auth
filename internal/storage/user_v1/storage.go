@@ -19,7 +19,7 @@ const (
 	nameColumn       = "name"
 	emailColumn      = "email"
 	passwordColumn   = "password"
-	roleColumn       = "role"
+	roleColumn       = "role_id"
 	ctraetedAtColumn = "created_at"
 	updatedAtColumn  = "updated_at"
 )

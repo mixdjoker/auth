@@ -18,25 +18,60 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 	reqBuf := strings.Builder{}
 	reqBuf.WriteString("CreateRequest {\n")
 	fmt.Fprintf(&reqBuf, "\tName: %s,\n\tEmail: %s,\n\tPassword: %s,\n\tPassword confirm: %s,\n\tRole: %s\n",
-		req.User.Name.Value,
-		req.User.Email.Value,
-		req.Password.Value,
-		req.PasswordConfirm.Value,
+		req.User.GetName().GetValue(),
+		req.User.GetEmail().GetValue(),
+		req.Password.GetValue(),
+		req.PasswordConfirm.GetValue(),
 		req.User.Role.String(),
 	)
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
 	}
 	reqBuf.WriteString("\t}")
-	log.Println(color.MagentaString("[gRPC]"),  color.BlueString(reqBuf.String()))
+	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
+
+	if err := validateUserCreateRequest(req); err != nil {
+		return nil, err
+	}
 
 	id, err := i.userService.Create(ctx, dtohelper.ToModelUserFromCreateRequest(req))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	
 	return &desc.CreateResponse{
-		Id: &wrapperspb.Int64Value{ Value: id },
+		Id: &wrapperspb.Int64Value{Value: id},
 	}, nil
+}
+
+func validateUserCreateRequest(req *desc.CreateRequest) error {
+	if req.User == nil {
+		return status.Errorf(codes.InvalidArgument, "User is required")
+	}
+
+	if req.User.Name == nil {
+		return status.Errorf(codes.InvalidArgument, "Name is required")
+	}
+
+	if req.User.Email == nil {
+		return status.Errorf(codes.InvalidArgument, "Email is required")
+	}
+
+	if req.Password == nil {
+		return status.Errorf(codes.InvalidArgument, "Password is required")
+	}
+
+	if req.PasswordConfirm == nil {
+		return status.Errorf(codes.InvalidArgument, "Password confirm is required")
+	}
+
+	if req.Password.GetValue() != req.PasswordConfirm.GetValue() {
+		return status.Errorf(codes.InvalidArgument, "Password and password confirm must be equal")
+	}
+
+	if req.User.Role == desc.Role_UNKNOWN {
+		return status.Errorf(codes.InvalidArgument, "Role is required")
+	}
+
+	return nil
 }
