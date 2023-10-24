@@ -13,3 +13,29 @@ func ToModelUserFromCreateRequest(req *desc.CreateRequest) *model.User {
 		Role:     int(req.User.Role.Number()),
 	}
 }
+
+func ToModelUserFromUpdateRequest(req *desc.UpdateRequest) *model.User {
+	var (
+		name  string
+		email string
+		role  int
+	)
+	if req.User.Name != nil {
+		name = req.User.Name.Value
+	}
+
+	if req.User.Email != nil {
+		email = req.User.Email.Value
+	}
+
+	if req.User.Role != desc.Role_UNKNOWN {
+		role = int(req.User.Role.Number())
+	}
+
+	return &model.User{
+		ID:    req.Id.Value,
+		Name:  name,
+		Email: email,
+		Role:  role,
+	}
+}
