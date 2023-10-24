@@ -8,7 +8,7 @@
 .credentials
 
 # Environment
-*.env
+*.prod.env
 
 #DBA
 admins-command.sql

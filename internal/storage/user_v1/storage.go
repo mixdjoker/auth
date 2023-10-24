@@ -3,6 +3,7 @@ package user_v1
 import (
 	"context"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/mixdjoker/auth/internal/client/db"
@@ -19,7 +20,7 @@ const (
 	nameColumn       = "name"
 	emailColumn      = "email"
 	passwordColumn   = "password"
-	roleColumn       = "role"
+	roleColumn       = "role_id"
 	ctraetedAtColumn = "created_at"
 	updatedAtColumn  = "updated_at"
 )
@@ -99,23 +100,19 @@ func (r *repo) Update(ctx context.Context, u *model.User) error {
 	updateBuilder := sq.Update(userTable).
 		Where(sq.Eq{idColumn: u.ID}).
 		PlaceholderFormat(sq.Dollar)
-
 	if u.Name != curUser.Name {
 		updateBuilder = updateBuilder.Set(nameColumn, u.Name)
 	}
-
 	if u.Email != curUser.Email {
 		updateBuilder = updateBuilder.Set(emailColumn, u.Email)
 	}
-
 	if u.Password != curUser.Password {
 		updateBuilder = updateBuilder.Set(passwordColumn, u.Password)
 	}
-
 	if u.Role != curUser.Role {
 		updateBuilder = updateBuilder.Set(roleColumn, u.Role)
 	}
-
+	updateBuilder = updateBuilder.Set(updatedAtColumn, time.Now())
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
 		return err

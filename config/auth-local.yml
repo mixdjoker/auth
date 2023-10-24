@@ -1,0 +1,15 @@
+env_file:
+  path: ./config/.local.env
+
+grpc:
+  host: GRPC_HOST
+  port: GRPC_PORT
+
+storage:
+  postgres:
+    host: PG_HOST
+    port: PG_LOCAL_PORT
+    user: PG_USER
+    pass: PG_PASSWORD
+    database: PG_DATABASE
+    sslmode: PG_SSLMODE

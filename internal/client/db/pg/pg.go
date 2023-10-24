@@ -102,10 +102,10 @@ func logQuery(ctx context.Context, q db.Query, args ...interface{}) {
 	prettyQuery := prettier.Pretty(q.QueryRaw, prettier.PlaceholderDollar, args...)
 
 	buf := strings.Builder{}
-	fmt.Fprint(&buf, "query: {")
-	fmt.Fprintf(&buf, "ctx: %+v, ", ctx)
-	fmt.Fprintf(&buf, "sql: %s, ", q.Name)
-	fmt.Fprintf(&buf, "query: %s", prettyQuery)
+	fmt.Fprint(&buf, "query: {\n")
+	fmt.Fprintf(&buf, "\tq.ctx: %+v,\n", ctx)
+	fmt.Fprintf(&buf, "\tq.Name: %s,\n", q.Name)
+	fmt.Fprintf(&buf, "\tq.SQL: %s\n", prettyQuery)
 	fmt.Fprint(&buf, "}")
 
 	log.Println(color.MagentaString(buf.String()))

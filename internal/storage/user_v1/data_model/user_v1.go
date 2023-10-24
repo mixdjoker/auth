@@ -10,7 +10,7 @@ type User struct {
 	Name      string
 	Email     string
 	Password  string
-	Role      int
+	Role      int          `db:"role_id"`
 	CreatedAt time.Time    `db:"created_at"`
 	UpdatedAt sql.NullTime `db:"updated_at"`
 }

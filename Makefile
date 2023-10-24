@@ -1,4 +1,4 @@
-include .env
+include ./config/.local.env
 include .credentials
 
 LOCAL_BIN = $(CURDIR)/bin
@@ -104,6 +104,9 @@ docker-build-and-push-app-dev:
 compose-build:
 	docker login -u oauth -p $(YA_TOKEN) $(YA_REGISTRY)
 	docker buildx build --no-cache --platform linux/amd64 --push --tag $(YA_REGISTRY)/$(APP_NAME)-server:$(GIT_SHORT_HASH) .
+
+compose-db-config:
+	docker compose -f ./infrastructure/auth-postgre.yml config
 
 compose-db-up:
 	docker compose -f ./infrastructure/auth-postgre.yml up -d
