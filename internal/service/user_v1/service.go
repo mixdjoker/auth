@@ -11,6 +11,7 @@ type serv struct {
 	txManager db.TxManager
 }
 
+// NewService returns a new instance of service.UserV1Service
 func NewService(repo storage.UserV1Storage, txManager db.TxManager) service.UserV1Service {
 	return &serv{
 		repo:      repo,

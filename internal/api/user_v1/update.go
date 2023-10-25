@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Update implements UserServiceServer.Update
 func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	reqBuf := strings.Builder{}
 	reqBuf.WriteString("UpdateRequest {\n")

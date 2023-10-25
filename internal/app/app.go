@@ -17,11 +17,13 @@ const (
 	appName = "auth"
 )
 
+// App is a struct that holds all the application dependencies
 type App struct {
 	serviceProvider *serviceProvider
 	grpcServer      *grpc.Server
 }
 
+// NewApp is a function that returns a new instance of the App struct
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{}
 
@@ -33,6 +35,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	return a, nil
 }
 
+// Run is a method that runs the application
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()

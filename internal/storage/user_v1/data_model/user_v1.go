@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// User data model
 type User struct {
 	ID        int64 `db:"user_id"`
 	Name      string
