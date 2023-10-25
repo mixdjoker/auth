@@ -29,10 +29,12 @@ type repo struct {
 	db db.Client
 }
 
+// NewRepo returns a new instance of storage.UserV1Storage
 func NewRepo(db db.Client) storage.UserV1Storage {
 	return &repo{db: db}
 }
 
+// Create creates a new user in the database
 func (r *repo) Create(ctx context.Context, u *model.User) (int64, error) {
 	retStr := fmt.Sprintf("RETURNING %s", idColumn)
 	insertBuilder := sq.Insert(userTable).
@@ -60,6 +62,7 @@ func (r *repo) Create(ctx context.Context, u *model.User) (int64, error) {
 	return id, nil
 }
 
+// Get returns a user from the database
 func (r *repo) Get(ctx context.Context, id int64) (*model.User, error) {
 	selectBuilder := sq.Select(
 		nameColumn,
@@ -91,6 +94,7 @@ func (r *repo) Get(ctx context.Context, id int64) (*model.User, error) {
 	return converter.ToModelUserFromRepo(&dUser), nil
 }
 
+// Update updates a user in the database
 func (r *repo) Update(ctx context.Context, u *model.User) error {
 	curUser, err := r.Get(ctx, u.ID)
 	if err != nil {
@@ -131,6 +135,7 @@ func (r *repo) Update(ctx context.Context, u *model.User) error {
 	return nil
 }
 
+// Delete deletes a user from the database
 func (r *repo) Delete(ctx context.Context, id int64) error {
 	deleteBuilder := sq.Delete(userTable).
 		Where(sq.Eq{idColumn: id}).
