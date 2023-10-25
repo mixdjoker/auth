@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Delete implements UserServiceServer.Delete
 func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	reqBuf := strings.Builder{}
 	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.Id.Value)

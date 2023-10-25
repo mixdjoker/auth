@@ -5,7 +5,6 @@ import (
 	"errors"
 )
 
-
 func (s *serv) Delete(ctx context.Context, id int64) error {
 	_, err := s.Get(ctx, id)
 	if err != nil {

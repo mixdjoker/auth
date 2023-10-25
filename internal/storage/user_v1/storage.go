@@ -137,6 +137,9 @@ func (r *repo) Delete(ctx context.Context, id int64) error {
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := deleteBuilder.ToSql()
+	if err != nil {
+		return err
+	}
 
 	q := db.Query{
 		Name:     "user_v1.Delete",

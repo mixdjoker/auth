@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// Create implements UserServiceServer.Create
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 	reqBuf := strings.Builder{}
 	reqBuf.WriteString("CreateRequest {\n")

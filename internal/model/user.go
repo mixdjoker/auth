@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// User is a user model for service layer.
 type User struct {
 	ID        int64
 	Name      string

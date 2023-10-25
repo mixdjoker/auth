@@ -5,6 +5,7 @@ import (
 	desc "github.com/mixdjoker/auth/pkg/user_v1"
 )
 
+// ToModelUserFromCreateRequest converts CreateRequest to model.User
 func ToModelUserFromCreateRequest(req *desc.CreateRequest) *model.User {
 	return &model.User{
 		Name:     req.User.Name.Value,
@@ -14,6 +15,7 @@ func ToModelUserFromCreateRequest(req *desc.CreateRequest) *model.User {
 	}
 }
 
+// ToModelUserFromUpdateRequest converts UpdateRequest to model.User
 func ToModelUserFromUpdateRequest(req *desc.UpdateRequest) *model.User {
 	var (
 		name  string

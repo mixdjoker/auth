@@ -18,6 +18,7 @@ import (
 type key string
 
 const (
+	// TxKey is a key for transaction.
 	TxKey key = "tx"
 )
 
@@ -26,10 +27,12 @@ type pg struct {
 	dbc *pgxpool.Pool
 }
 
+// NewPool creates a new database client.
 func NewPool(dbc *pgxpool.Pool) *pg {
 	return &pg{dbc: dbc}
 }
 
+// ScanOneContext scans one row from database.
 func (p *pg) ScanOneContext(ctx context.Context, dest interface{}, q db.Query, args ...interface{}) error {
 	rows, err := p.QueryContext(ctx, q, args...)
 	if err != nil {
@@ -41,6 +44,7 @@ func (p *pg) ScanOneContext(ctx context.Context, dest interface{}, q db.Query, a
 	return pgxscan.ScanOne(dest, rows)
 }
 
+// ScanAllContext scans all rows from database.
 func (p *pg) ScanAllContext(ctx context.Context, dest interface{}, q db.Query, args ...interface{}) error {
 	rows, err := p.QueryContext(ctx, q, args...)
 	if err != nil {
@@ -52,6 +56,7 @@ func (p *pg) ScanAllContext(ctx context.Context, dest interface{}, q db.Query, a
 	return pgxscan.ScanAll(dest, rows)
 }
 
+// ExecContext executes a query without returning any rows.
 func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (pgconn.CommandTag, error) {
 	logQuery(ctx, q, args...)
 
@@ -62,6 +67,7 @@ func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (
 	return p.dbc.Exec(ctx, q.QueryRaw, args...)
 }
 
+// QueryContext executes a query that returns rows, typically a SELECT.
 func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
 	logQuery(ctx, q, args...)
 
@@ -72,6 +78,7 @@ func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) 
 	return p.dbc.Query(ctx, q.QueryRaw, args...)
 }
 
+// QueryRowContext executes a query that is expected to return at most one row.
 func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
 	logQuery(ctx, q, args...)
 
@@ -82,18 +89,22 @@ func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{
 	return p.dbc.QueryRow(ctx, q.QueryRaw, args...)
 }
 
+// BeginTx begins a transaction.
 func (p *pg) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
 	return p.dbc.BeginTx(ctx, txOptions)
 }
 
+// Ping verifies a connection to the database is still alive, establishing a connection if necessary.
 func (p *pg) Ping(ctx context.Context) error {
 	return p.dbc.Ping(ctx)
 }
 
+// Close closes the database client.
 func (p *pg) Close() {
 	p.dbc.Close()
 }
 
+// MakeContextTx makes a new context with transaction.
 func MakeContextTx(ctx context.Context, tx pgx.Tx) context.Context {
 	return context.WithValue(ctx, TxKey, tx)
 }

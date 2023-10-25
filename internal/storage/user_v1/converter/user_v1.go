@@ -5,6 +5,7 @@ import (
 	"github.com/mixdjoker/auth/internal/storage/user_v1/data_model"
 )
 
+// ToModelUserFromRepo converts data_model.User to model.User.
 func ToModelUserFromRepo(dUser *data_model.User) *model.User {
 	userModel := &model.User{
 		ID:        dUser.ID,

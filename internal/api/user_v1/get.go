@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// Get implements UserServiceServer.Get
 func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	reqBuf := strings.Builder{}
 	fmt.Fprintf(&reqBuf, "GetRequest {\n\tId: %d,\n", req.Id.Value)
