@@ -20,8 +20,7 @@ func (s *serv) Update(ctx context.Context, info *model.User) error {
 	updateExistInfo(exist, info)
 
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		var errTx error
-		errTx = s.repo.Update(ctx, exist)
+		errTx := s.repo.Update(ctx, exist)
 		if errTx != nil {
 			return errTx
 		}

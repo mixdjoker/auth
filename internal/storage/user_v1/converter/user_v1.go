@@ -5,18 +5,19 @@ import (
 	"github.com/mixdjoker/auth/internal/storage/user_v1/data_model"
 )
 
-func ToModelFromStorageUserV1(user *data_model.User) *model.User {
+// ToModelUserFromRepo converts data_model.User to model.User.
+func ToModelUserFromRepo(dUser *data_model.User) *model.User {
 	userModel := &model.User{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Password:  user.Password,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
+		ID:        dUser.ID,
+		Name:      dUser.Name,
+		Email:     dUser.Email,
+		Password:  dUser.Password,
+		Role:      dUser.Role,
+		CreatedAt: dUser.CreatedAt,
 	}
 
-	if user.UpdatedAt.Valid {
-		userModel.UpdatedAt = user.UpdatedAt.Time
+	if dUser.UpdatedAt.Valid {
+		userModel.UpdatedAt = &dUser.UpdatedAt.Time
 	}
 
 	return userModel

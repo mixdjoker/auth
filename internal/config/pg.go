@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// PgConfiger interface for config Postgres
 type PgConfiger interface {
 	DSN() string
 }
@@ -13,10 +14,9 @@ type pgConfig struct {
 	dsn string
 }
 
+// NewPGConfig is a function that returns a new instance of the PgConfiger interface
 func NewPGConfig(env EnvConfiger) (PgConfiger, error) {
-	var args map[string]int
-
-	args = make(map[string]int)
+	args := make(map[string]int)
 	args[env.PGHostEnvName()] = len(os.Getenv(env.PGHostEnvName()))
 	args[env.PGPortEnvName()] = len(os.Getenv(env.PGPortEnvName()))
 	args[env.PGUserEnvName()] = len(os.Getenv(env.PGUserEnvName()))
@@ -42,6 +42,7 @@ func NewPGConfig(env EnvConfiger) (PgConfiger, error) {
 	return &pgConfig{dsn: dsn}, nil
 }
 
+// DSN is a method that returns a DSN string
 func (cfg *pgConfig) DSN() string {
 	return cfg.dsn
 }

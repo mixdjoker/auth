@@ -13,6 +13,7 @@ type manager struct {
 	db db.Transactor
 }
 
+// NewTransactionManager returns a new instance of db.TxManager
 func NewTransactionManager(db db.Transactor) db.TxManager {
 	return &manager{
 		db: db,

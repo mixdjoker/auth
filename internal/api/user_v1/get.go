@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// Get implements UserServiceServer.Get
 func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	reqBuf := strings.Builder{}
 	fmt.Fprintf(&reqBuf, "GetRequest {\n\tId: %d,\n", req.Id.Value)
@@ -36,6 +37,10 @@ func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 			Email: &wrapperspb.StringValue{Value: user.Email},
 			Role:  desc.Role(user.Role),
 		},
+	}
+
+	if user.UpdatedAt != nil {
+		descUserInfo.UpdatedAt = &timestamppb.Timestamp{Seconds: user.UpdatedAt.Unix(), Nanos: int32(user.UpdatedAt.Nanosecond())}
 	}
 
 	return &desc.GetResponse{

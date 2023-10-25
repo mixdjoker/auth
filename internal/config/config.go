@@ -14,16 +14,19 @@ const (
 	defEnvPath    = "./.env"
 )
 
+// EnvConfiger interface for config environment
 type EnvConfiger interface {
 	GrpcEnvConfiger
 	PgEnvConfiger
 }
 
+// GrpcEnvConfiger interface for config GRPC environment
 type GrpcEnvConfiger interface {
 	GrpcHostEnvName() string
 	GrpcPortEnvName() string
 }
 
+// PgEnvConfiger interface for config Postgres environment
 type PgEnvConfiger interface {
 	PGHostEnvName() string
 	PGPortEnvName() string
@@ -33,23 +36,25 @@ type PgEnvConfiger interface {
 	PGSSLModeEnvName() string
 }
 
-// EnvConfig ...
+// EnvConfig is a struct that holds all the configuration for the server
 type EnvConfig struct {
 	Grpc    `yaml:"grpc"`
 	Storage `yaml:"storage"`
 	EnvFile `yaml:"env_file"`
 }
 
-// Server is a struct that holds all the configuration for the server
+// Grpc is a struct that holds all the configuration for the GRPC server
 type Grpc struct {
 	Host string `yaml:"host" env-default:"GRPC_HOST"`
 	Port string `yaml:"port" env-default:"GRPC_PORT"`
 }
 
+// Storage is a struct that holds all the configuration for the storage
 type Storage struct {
 	Postgres `yaml:"postgres"`
 }
 
+// Postgres is a struct that holds all the configuration for the postgres
 type Postgres struct {
 	Host     string `yaml:"host" env-default:"PG_HOST"`
 	Port     string `yaml:"port" env-default:"PG_PORT"`
@@ -59,11 +64,12 @@ type Postgres struct {
 	SslMode  string `yaml:"sslmode" env-default:"PG_SSLMODE"`
 }
 
+// EnvFile is a struct that holds all the configuration for the env file
 type EnvFile struct {
 	Path string `yaml:"path" env-default:"./.env"`
 }
 
-// MustConfig reads the config from the environment and panics if it fails
+// NewEnvConfig returns a new EnvConfig struct
 func NewEnvConfig() (EnvConfiger, error) {
 	configPath := os.Getenv(appEnv)
 	if configPath == "" {
@@ -94,34 +100,42 @@ func NewEnvConfig() (EnvConfiger, error) {
 	return &cfg, nil
 }
 
+// GrpcHostEnvName returns the GRPC host environment name
 func (cfg *EnvConfig) GrpcHostEnvName() string {
 	return cfg.Grpc.Host
 }
 
+// GrpcPortEnvName returns the GRPC port environment name
 func (cfg *EnvConfig) GrpcPortEnvName() string {
 	return cfg.Grpc.Port
 }
 
+// PGHostEnvName returns the Postgres host environment name
 func (cfg *EnvConfig) PGHostEnvName() string {
 	return cfg.Storage.Postgres.Host
 }
 
+// PGPortEnvName returns the Postgres port environment name
 func (cfg *EnvConfig) PGPortEnvName() string {
 	return cfg.Storage.Postgres.Port
 }
 
+// PGUserEnvName returns the Postgres user environment name
 func (cfg *EnvConfig) PGUserEnvName() string {
 	return cfg.Storage.Postgres.User
 }
 
+// PGPasswordEnvName returns the Postgres password environment name
 func (cfg *EnvConfig) PGPasswordEnvName() string {
 	return cfg.Storage.Postgres.Password
 }
 
+// PGDatabaseEnvName returns the Postgres database environment name
 func (cfg *EnvConfig) PGDatabaseEnvName() string {
 	return cfg.Storage.Postgres.Database
 }
 
+// PGSSLModeEnvName returns the Postgres sslmode environment name
 func (cfg *EnvConfig) PGSSLModeEnvName() string {
 	return cfg.Storage.Postgres.SslMode
 }

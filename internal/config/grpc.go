@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// GrpcConfiger interface for grpc config
 type GrpcConfiger interface {
 	Address() string
 }
@@ -15,6 +16,7 @@ type grpcConfig struct {
 	port string
 }
 
+// NewGrpcConfig returns a new instance of GrpcConfiger
 func NewGrpcConfig(env EnvConfiger) (GrpcConfiger, error) {
 	host := os.Getenv(env.GrpcHostEnvName())
 	if len(host) == 0 {
@@ -32,6 +34,7 @@ func NewGrpcConfig(env EnvConfiger) (GrpcConfiger, error) {
 	}, nil
 }
 
+// Address returns grpc address
 func (cfg *grpcConfig) Address() string {
 	return net.JoinHostPort(cfg.host, cfg.port)
 }
