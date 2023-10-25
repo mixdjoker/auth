@@ -8,19 +8,19 @@ import (
 )
 
 func (s *serv) Update(ctx context.Context, info *model.User) error {
-	exist, err := s.Get(ctx, info.ID)
-	if err != nil {
-		return errors.New("Service.Update: " + err.Error())
-	}
+	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		exist, errTx := s.repo.Get(ctx, info.ID)
+		if errTx != nil {
+			return errTx
+		}
 
-	if exist == nil {
-		return errors.New("Service.Update: user not found")
-	}
+		if exist == nil {
+			return errors.New("user not found")
+		}
 
-	updateExistInfo(exist, info)
+		updateExistInfo(exist, info)
 
-	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		errTx := s.repo.Update(ctx, exist)
+		errTx = s.repo.Update(ctx, exist)
 		if errTx != nil {
 			return errTx
 		}

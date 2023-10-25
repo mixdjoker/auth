@@ -65,6 +65,7 @@ func (r *repo) Create(ctx context.Context, u *model.User) (int64, error) {
 // Get returns a user from the database
 func (r *repo) Get(ctx context.Context, id int64) (*model.User, error) {
 	selectBuilder := sq.Select(
+		idColumn,
 		nameColumn,
 		emailColumn,
 		ctraetedAtColumn,
@@ -96,27 +97,14 @@ func (r *repo) Get(ctx context.Context, id int64) (*model.User, error) {
 
 // Update updates a user in the database
 func (r *repo) Update(ctx context.Context, u *model.User) error {
-	curUser, err := r.Get(ctx, u.ID)
-	if err != nil {
-		return err
-	}
-
 	updateBuilder := sq.Update(userTable).
 		Where(sq.Eq{idColumn: u.ID}).
-		PlaceholderFormat(sq.Dollar)
-	if u.Name != curUser.Name {
-		updateBuilder = updateBuilder.Set(nameColumn, u.Name)
-	}
-	if u.Email != curUser.Email {
-		updateBuilder = updateBuilder.Set(emailColumn, u.Email)
-	}
-	if u.Password != curUser.Password {
-		updateBuilder = updateBuilder.Set(passwordColumn, u.Password)
-	}
-	if u.Role != curUser.Role {
-		updateBuilder = updateBuilder.Set(roleColumn, u.Role)
-	}
-	updateBuilder = updateBuilder.Set(updatedAtColumn, time.Now())
+		PlaceholderFormat(sq.Dollar).
+		Set(nameColumn, u.Name).
+		Set(emailColumn, u.Email).
+		Set(roleColumn, u.Role).
+		Set(updatedAtColumn, time.Now())
+
 	query, args, err := updateBuilder.ToSql()
 	if err != nil {
 		return err
@@ -157,4 +145,36 @@ func (r *repo) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+// GetUserByEmail returns a user from the database by email
+func (r *repo) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	qBuilder := sq.Select(
+		idColumn,
+		nameColumn,
+		emailColumn,
+		ctraetedAtColumn,
+		updatedAtColumn,
+		roleColumn).
+		From(userTable).
+		Where(sq.Eq{email: email}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := qBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     "user_v1.GetUserByEmail",
+		QueryRaw: query,
+	}
+
+	var dUser data_model.User
+	err = r.db.DB().ScanOneContext(ctx, &dUser, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.ToModelUserFromRepo(&dUser), nil
 }

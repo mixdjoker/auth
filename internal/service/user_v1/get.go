@@ -20,7 +20,6 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 	if err != nil {
 		return nil, errors.New("Service.Get: " + err.Error())
 	}
-	u.ID = id
 
 	return u, nil
 }
