@@ -8,6 +8,8 @@ import (
 
 	"github.com/fatih/color"
 	desc "github.com/mixdjoker/auth/pkg/user_v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -19,6 +21,10 @@ func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*
 	}
 	reqBuf.WriteString("\t}")
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
+
+	if err := i.userService.Delete(ctx, req.Id.Value); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)
+	}
 
 	return &emptypb.Empty{}, nil
 }
