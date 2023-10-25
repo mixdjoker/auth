@@ -38,6 +38,10 @@ func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 		},
 	}
 
+	if user.UpdatedAt != nil {
+		descUserInfo.UpdatedAt = &timestamppb.Timestamp{Seconds: user.UpdatedAt.Unix(), Nanos: int32(user.UpdatedAt.Nanosecond())}
+	}
+
 	return &desc.GetResponse{
 		UserInfo: descUserInfo,
 	}, nil

@@ -88,7 +88,7 @@ func (r *repo) Get(ctx context.Context, id int64) (*model.User, error) {
 		return nil, err
 	}
 
-	return converter.ToModelFromStorageUserV1(&dUser), nil
+	return converter.ToModelUserFromRepo(&dUser), nil
 }
 
 func (r *repo) Update(ctx context.Context, u *model.User) error {
