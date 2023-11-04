@@ -30,26 +30,10 @@ func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*
 	reqBuf.WriteString("\t}")
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
-	if err := validateUserUpdateRequest(req); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
-	}
-
 	err := i.userService.Update(ctx, dtohelper.ToModelUserFromUpdateRequest(req))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func validateUserUpdateRequest(req *desc.UpdateRequest) error {
-	if req.Id == nil {
-		return fmt.Errorf("id is required")
-	}
-
-	if req.User == nil {
-		return fmt.Errorf("user is required")
-	}
-
-	return nil
 }

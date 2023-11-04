@@ -16,14 +16,14 @@ import (
 // Delete implements UserServiceServer.Delete
 func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	reqBuf := strings.Builder{}
-	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.Id.Value)
+	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.Id.GetValue())
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
 	}
 	reqBuf.WriteString("\t}")
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
-	if err := i.userService.Delete(ctx, req.Id.Value); err != nil {
+	if err := i.userService.Delete(ctx, req.Id.GetValue()); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)
 	}
 

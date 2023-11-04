@@ -17,7 +17,7 @@ import (
 // Get implements UserServiceServer.Get
 func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	reqBuf := strings.Builder{}
-	fmt.Fprintf(&reqBuf, "GetRequest {\n\tId: %d,\n", req.Id.Value)
+	fmt.Fprintf(&reqBuf, "GetRequest {\n\tId: %d,\n", req.Id.GetValue())
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
 	}
