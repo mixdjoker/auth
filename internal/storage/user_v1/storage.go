@@ -35,12 +35,12 @@ func NewRepo(db db.Client) storage.UserV1Storage {
 }
 
 // Create creates a new user in the database
-func (r *repo) Create(ctx context.Context, u *model.User) (int64, error) {
+func (r *repo) Create(ctx context.Context, u *model.NewUser) (int64, error) {
 	retStr := fmt.Sprintf("RETURNING %s", idColumn)
 	insertBuilder := sq.Insert(userTable).
 		PlaceholderFormat(sq.Dollar).
 		Columns(nameColumn, emailColumn, passwordColumn, roleColumn).
-		Values(u.Name, u.Email, u.Password, u.Role).
+		Values(u.User.Name, u.User.Email, u.UserCredentials.Password, u.User.Role).
 		Suffix(retStr)
 
 	query, args, err := insertBuilder.ToSql()

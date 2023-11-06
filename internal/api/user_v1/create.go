@@ -17,8 +17,10 @@ import (
 // Create implements UserServiceServer.Create
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 	reqBuf := strings.Builder{}
-	reqBuf.WriteString("CreateRequest {\n")
-	fmt.Fprintf(&reqBuf, "\tName: %s,\n\tEmail: %s,\n\tPassword: %s,\n\tPassword confirm: %s,\n\tRole: %s\n",
+	userBuf := strings.Builder{}
+	dlineBuf := strings.Builder{}
+	reqBuf.WriteString("CreateRequest: {")
+	fmt.Fprintf(&userBuf, "{Name: %s, Email: %s, Password: %s, Password confirm: %s, Role: %s}",
 		req.User.GetName().GetValue(),
 		req.User.GetEmail().GetValue(),
 		req.Password.GetValue(),
@@ -26,13 +28,17 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 		req.User.Role.String(),
 	)
 	if dLine, ok := ctx.Deadline(); ok {
-		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
+		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}
-	reqBuf.WriteString("\t}")
+	fmt.Fprintf(&reqBuf, "User: %s, Deadline: %s}", userBuf.String(), dlineBuf.String())
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
-	id, err := i.userService.Create(ctx, dtohelper.ToModelUserFromCreateRequest(req))
+	id, err := i.userService.Create(ctx, dtohelper.ToModelNewUserFromCreateRequest(req))
 	if err != nil {
+		if strings.Contains(err.Error(), "ValidationError") {
+			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", userBuf.String(), err)))
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
