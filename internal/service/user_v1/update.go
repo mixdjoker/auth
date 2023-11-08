@@ -2,9 +2,13 @@ package user_v1
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mixdjoker/auth/internal/model"
+	"github.com/pkg/errors"
+)
+
+const (
+	updateError = "UpdateError"
 )
 
 func (s *serv) Update(ctx context.Context, info *model.User) error {
@@ -13,11 +17,6 @@ func (s *serv) Update(ctx context.Context, info *model.User) error {
 		if errTx != nil {
 			return errTx
 		}
-
-		if exist == nil {
-			return errors.New("user not found")
-		}
-
 		updateExistInfo(exist, info)
 
 		errTx = s.repo.Update(ctx, exist)
@@ -29,7 +28,7 @@ func (s *serv) Update(ctx context.Context, info *model.User) error {
 	})
 
 	if err != nil {
-		return errors.New("Service.Update: " + err.Error())
+		return errors.Wrap(err, updateError)
 	}
 
 	return nil

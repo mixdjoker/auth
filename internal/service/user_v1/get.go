@@ -2,9 +2,14 @@ package user_v1
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mixdjoker/auth/internal/model"
+	"github.com/pkg/errors"
+)
+
+const (
+	gettingErr = "GettingError"
+	notFoundErr   = "NotFoundError"
 )
 
 func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
@@ -18,7 +23,7 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, errors.New("Service.Get: " + err.Error())
+		return nil, errors.Wrap(err, gettingErr)
 	}
 
 	return u, nil

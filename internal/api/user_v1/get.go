@@ -16,16 +16,25 @@ import (
 
 // Get implements UserServiceServer.Get
 func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+	// --- Only for logging
 	reqBuf := strings.Builder{}
-	fmt.Fprintf(&reqBuf, "GetRequest {\n\tId: %d,\n", req.Id.GetValue())
+	idBuf := strings.Builder{}
+	dlineBuf := strings.Builder{}
+	fmt.Fprintf(&idBuf, "{Id: %d}", req.Id.GetValue())
 	if dLine, ok := ctx.Deadline(); ok {
-		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
+		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}
-	reqBuf.WriteString("\t}")
+	fmt.Fprintf(&reqBuf, "GetRequest: {User: %s, Deadline: %s}", idBuf.String(), dlineBuf.String())
+	// ---
+
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
 	user, err := i.userService.Get(ctx, req.Id.GetValue())
 	if err != nil {
+		if strings.Contains(err.Error(), "GettingError") {
+			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", idBuf.String(), err)))
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 

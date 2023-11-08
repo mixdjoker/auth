@@ -16,10 +16,10 @@ import (
 
 // Create implements UserServiceServer.Create
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	// --- Only for logging
 	reqBuf := strings.Builder{}
 	userBuf := strings.Builder{}
 	dlineBuf := strings.Builder{}
-	reqBuf.WriteString("CreateRequest: {")
 	fmt.Fprintf(&userBuf, "{Name: %s, Email: %s, Password: %s, Password confirm: %s, Role: %s}",
 		req.User.GetName().GetValue(),
 		req.User.GetEmail().GetValue(),
@@ -30,7 +30,9 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}
-	fmt.Fprintf(&reqBuf, "User: %s, Deadline: %s}", userBuf.String(), dlineBuf.String())
+	fmt.Fprintf(&reqBuf, "CreateRequest: {User: %s, Deadline: %s}", userBuf.String(), dlineBuf.String())
+	// ---
+
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
 	id, err := i.userService.Create(ctx, dtohelper.ToModelNewUserFromCreateRequest(req))
@@ -38,6 +40,10 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 		if strings.Contains(err.Error(), "ValidationError") {
 			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", userBuf.String(), err)))
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		}
+		if strings.Contains(err.Error(), "CreationError") {
+			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", userBuf.String(), err)))
+			return nil, status.Errorf(codes.Internal, err.Error())
 		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}

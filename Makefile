@@ -8,7 +8,7 @@ INFRA_DIR = $(CURDIR)/infrastructure
 GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar"
 
 # Tools versions
-GOLINT_VER = v1.53.3
+GOLINT_VER = v1.55.2
 PROTOC_GO_VER = v1.28.1
 PROTOC_GRPC_VER = v1.2
 GOOSE_VER = v3.14.0
