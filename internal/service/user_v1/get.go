@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	gettingErr = "GettingError"
-	notFoundErr   = "NotFoundError"
+	gettingErr  = "GettingError"
+	notFoundErr = "NotFoundError"
 )
 
 func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {

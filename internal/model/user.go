@@ -14,11 +14,13 @@ type User struct {
 	UpdatedAt *time.Time
 }
 
+// UserCredentials is a user credentials model for service layer.
 type UserCredentials struct {
 	Password        string
 	ConfurmPassword string
 }
 
+// NewUser is a user model for service layer.
 type NewUser struct {
 	User            *User
 	UserCredentials *UserCredentials

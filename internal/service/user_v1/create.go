@@ -9,7 +9,7 @@ import (
 
 const (
 	// CreateErr is the error when create user.
-	createErr = "CreationError"
+	createErr    = "CreationError"
 	validatorErr = "ValidationError"
 )
 

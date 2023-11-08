@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	txBegErrMsg = "can't begin transaction"
-	panicErrMsg = "panic recovered"
-	commitErrMsg = "tx commit failed"
+	txBegErrMsg    = "can't begin transaction"
+	panicErrMsg    = "panic recovered"
+	commitErrMsg   = "tx commit failed"
 	rollbackErrMsg = "tx rollback failed"
-	txErrMsg = "failed executing code inside transaction"
+	txErrMsg       = "failed executing code inside transaction"
 )
 
 type manager struct {

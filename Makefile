@@ -9,9 +9,10 @@ GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar"
 
 # Tools versions
 GOLINT_VER = v1.55.2
-PROTOC_GO_VER = v1.28.1
+PROTOC_GO_VER = v1.31.0
 PROTOC_GRPC_VER = v1.2
 GOOSE_VER = v3.14.0
+GOIMPORTS_VER = v0.14.0
 
 # Dockerfiles
 DEV_APP_DCFILE= dev-$(APP_NAME)-server.Dockerfile
@@ -38,7 +39,7 @@ install-deps:
 	$(SILENT) GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GO_VER)
 	$(SILENT) GOBIN=$(LOCAL_BIN) go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GRPC_VER)
 	$(SILENT) GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VER)
-
+	$(SILENT) GOBIN=$(LOCAL_BIN) go install golang.org/x/tools/cmd/goimports@$(GOIMPORTS_VER)
 # Download dependences
 PHONY: get-deps
 get-deps:
@@ -72,6 +73,9 @@ generate-note-api:
 PHONY: lint
 lint:
 	$(SILENT) $(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
+PHONY: lint-fix
+lint-fix:
+	$(SILENT) $(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml --fix
 
 # Make build
 PHONY: build

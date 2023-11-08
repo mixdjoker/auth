@@ -25,7 +25,6 @@ func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*
 	}
 	fmt.Fprintf(&reqBuf, "DeleteRequest: {User: %s, Deadline: %s}", idBuf.String(), dlineBuf.String())
 
-
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
 	if err := i.userService.Delete(ctx, req.Id.GetValue()); err != nil {

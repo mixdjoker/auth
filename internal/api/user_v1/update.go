@@ -34,7 +34,7 @@ func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*
 		fmt.Fprintf(&usrBuf, "Role: %s, ", req.User.Role.String())
 	}
 	fmt.Fprintf(&usrBuf, "}")
-	
+
 	if dLine, ok := ctx.Deadline(); ok {
 		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}

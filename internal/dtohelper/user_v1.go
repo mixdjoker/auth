@@ -8,10 +8,10 @@ import (
 // ToModelNewUserFromCreateRequest converts CreateRequest to model.NewUser
 func ToModelNewUserFromCreateRequest(req *desc.CreateRequest) *model.NewUser {
 	return &model.NewUser{
-		User:            &model.User{
-			Name:      req.User.Name.GetValue(),
-			Email:     req.User.Email.GetValue(),
-			Role:      int(req.User.Role.Number()),
+		User: &model.User{
+			Name:  req.User.Name.GetValue(),
+			Email: req.User.Email.GetValue(),
+			Role:  int(req.User.Role.Number()),
 		},
 		UserCredentials: &model.UserCredentials{
 			Password:        req.Password.GetValue(),
@@ -23,9 +23,9 @@ func ToModelNewUserFromCreateRequest(req *desc.CreateRequest) *model.NewUser {
 // ToModelUserFromCreateRequest converts CreateRequest to model.User
 func ToModelUserFromCreateRequest(req *desc.CreateRequest) *model.User {
 	return &model.User{
-		Name:     req.User.Name.GetValue(),
-		Email:    req.User.Email.GetValue(),
-		Role:     int(req.User.Role.Number()),
+		Name:  req.User.Name.GetValue(),
+		Email: req.User.Email.GetValue(),
+		Role:  int(req.User.Role.Number()),
 	}
 }
 
