@@ -2,11 +2,19 @@ package transaction
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mixdjoker/auth/internal/client/db"
 	"github.com/mixdjoker/auth/internal/client/db/pg"
+	"github.com/pkg/errors"
+)
+
+const (
+	txBegErrMsg = "can't begin transaction"
+	panicErrMsg = "panic recovered"
+	commitErrMsg = "tx commit failed"
+	rollbackErrMsg = "tx rollback failed"
+	txErrMsg = "failed executing code inside transaction"
 )
 
 type manager struct {
@@ -28,19 +36,19 @@ func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Han
 
 	tx, err = m.db.BeginTx(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("can't begin transaction: %w", err)
+		return errors.Wrap(err, txBegErrMsg)
 	}
 
 	ctx = pg.MakeContextTx(ctx, tx)
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered: %v", r)
+			err = errors.Errorf("%s: %v", panicErrMsg, r)
 		}
 
 		if err != nil {
 			if errRollback := tx.Rollback(ctx); errRollback != nil {
-				err = fmt.Errorf("tx rollback failed: %w, errRollback: %v", err, errRollback)
+				err = errors.Wrapf(err, "%s: %v", rollbackErrMsg, errRollback)
 			}
 
 			return
@@ -49,13 +57,13 @@ func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Han
 		if nil == err {
 			err = tx.Commit(ctx)
 			if err != nil {
-				err = fmt.Errorf("tx commit failed: %w", err)
+				err = errors.Wrap(err, commitErrMsg)
 			}
 		}
 	}()
 
 	if err = fn(ctx); err != nil {
-		err = fmt.Errorf("failed executing code inside transaction: %w", err)
+		err = errors.Wrap(err, txErrMsg)
 	}
 
 	return err

@@ -16,9 +16,11 @@ import (
 
 // Create implements UserServiceServer.Create
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	// --- Only for logging
 	reqBuf := strings.Builder{}
-	reqBuf.WriteString("CreateRequest {\n")
-	fmt.Fprintf(&reqBuf, "\tName: %s,\n\tEmail: %s,\n\tPassword: %s,\n\tPassword confirm: %s,\n\tRole: %s\n",
+	userBuf := strings.Builder{}
+	dlineBuf := strings.Builder{}
+	fmt.Fprintf(&userBuf, "{Name: %s, Email: %s, Password: %s, Password confirm: %s, Role: %s}",
 		req.User.GetName().GetValue(),
 		req.User.GetEmail().GetValue(),
 		req.Password.GetValue(),
@@ -26,53 +28,27 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 		req.User.Role.String(),
 	)
 	if dLine, ok := ctx.Deadline(); ok {
-		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
+		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}
-	reqBuf.WriteString("\t}")
+	fmt.Fprintf(&reqBuf, "CreateRequest: {User: %s, Deadline: %s}", userBuf.String(), dlineBuf.String())
+	// ---
+
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
-	if err := validateUserCreateRequest(req); err != nil {
-		return nil, err
-	}
-
-	id, err := i.userService.Create(ctx, dtohelper.ToModelUserFromCreateRequest(req))
+	id, err := i.userService.Create(ctx, dtohelper.ToModelNewUserFromCreateRequest(req))
 	if err != nil {
+		if strings.Contains(err.Error(), "ValidationError") {
+			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", userBuf.String(), err)))
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		}
+		if strings.Contains(err.Error(), "CreationError") {
+			log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", userBuf.String(), err)))
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &desc.CreateResponse{
 		Id: &wrapperspb.Int64Value{Value: id},
 	}, nil
-}
-
-func validateUserCreateRequest(req *desc.CreateRequest) error {
-	if req.User == nil {
-		return status.Errorf(codes.InvalidArgument, "User is required")
-	}
-
-	if req.User.Name == nil {
-		return status.Errorf(codes.InvalidArgument, "Name is required")
-	}
-
-	if req.User.Email == nil {
-		return status.Errorf(codes.InvalidArgument, "Email is required")
-	}
-
-	if req.Password == nil {
-		return status.Errorf(codes.InvalidArgument, "Password is required")
-	}
-
-	if req.PasswordConfirm == nil {
-		return status.Errorf(codes.InvalidArgument, "Password confirm is required")
-	}
-
-	if req.Password.GetValue() != req.PasswordConfirm.GetValue() {
-		return status.Errorf(codes.InvalidArgument, "Password and password confirm must be equal")
-	}
-
-	if req.User.Role == desc.Role_UNKNOWN {
-		return status.Errorf(codes.InvalidArgument, "Role is required")
-	}
-
-	return nil
 }

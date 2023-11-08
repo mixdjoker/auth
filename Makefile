@@ -8,7 +8,7 @@ INFRA_DIR = $(CURDIR)/infrastructure
 GO_CMP_ARGS = CGO_ENABLED=0 GOEXPERIMENT="loopvar"
 
 # Tools versions
-GOLINT_VER = v1.53.3
+GOLINT_VER = v1.55.2
 PROTOC_GO_VER = v1.28.1
 PROTOC_GRPC_VER = v1.2
 GOOSE_VER = v3.14.0
@@ -118,16 +118,16 @@ compose-db-down:
 ## DBA Section ##
 #################
 local-migration-create:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create $(ARGS) sql
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create $(ARGS) sql
 
 local-migration-status:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} status -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} status -v
 
 local-migration-up:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} up -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} up -v
 
 local-migration-down:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} down -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} down -v
 
 #################
 ## Black Magic ##

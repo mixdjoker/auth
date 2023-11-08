@@ -2,12 +2,15 @@ package pg
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mixdjoker/auth/internal/client/db"
+	"github.com/pkg/errors"
 )
 
+const (
+	newErr = "pgxpool.New"
+)
 type pgClient struct {
 	masterDBC db.DB
 }
@@ -16,7 +19,7 @@ type pgClient struct {
 func NewClient(ctx context.Context, dsn string) (db.Client, error) {
 	dbpool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
-		return nil, fmt.Errorf("pgxpool.New: %w", err)
+		return nil, errors.Wrap(err, newErr)
 	}
 
 	pgDB := NewPool(dbpool)
