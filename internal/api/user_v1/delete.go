@@ -16,15 +16,21 @@ import (
 // Delete implements UserServiceServer.Delete
 func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	reqBuf := strings.Builder{}
-	fmt.Fprintf(&reqBuf, "DeleteRequest {\n\tId: %d,\n", req.Id.GetValue())
+	idBuf := strings.Builder{}
+	dlineBuf := strings.Builder{}
+
+	fmt.Fprintf(&idBuf, "{Id: %d}", req.Id.GetValue())
 	if dLine, ok := ctx.Deadline(); ok {
-		fmt.Fprintf(&reqBuf, "\tDeadline: %s\n", dLine.String())
+		fmt.Fprintf(&dlineBuf, "{%s}", dLine.String())
 	}
-	reqBuf.WriteString("\t}")
+	fmt.Fprintf(&reqBuf, "DeleteRequest: {User: %s, Deadline: %s}", idBuf.String(), dlineBuf.String())
+
+
 	log.Println(color.MagentaString("[gRPC]"), color.BlueString(reqBuf.String()))
 
 	if err := i.userService.Delete(ctx, req.Id.GetValue()); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)
+		log.Println(color.MagentaString("[gRPC]"), color.RedString(fmt.Sprintf("User: %s: %v", idBuf.String(), err)))
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
