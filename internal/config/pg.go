@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 // PgConfiger interface for config Postgres
@@ -26,7 +28,7 @@ func NewPGConfig(env EnvConfiger) (PgConfiger, error) {
 
 	for k, v := range args {
 		if v == 0 {
-			return nil, fmt.Errorf("env variable %s not found", k)
+			return nil, errors.Errorf("env variable %s not found", k)
 		}
 	}
 
