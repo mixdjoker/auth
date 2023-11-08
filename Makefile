@@ -118,16 +118,16 @@ compose-db-down:
 ## DBA Section ##
 #################
 local-migration-create:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create $(ARGS) sql
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create $(ARGS) sql
 
 local-migration-status:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} status -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} status -v
 
 local-migration-up:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} up -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} up -v
 
 local-migration-down:
-	GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} down -v
+	$(SILENT) GOOSE_DRIVER=postgres GOOSE_DBSTRING=${LOCAL_MIGRATION_DSN} $(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} down -v
 
 #################
 ## Black Magic ##
