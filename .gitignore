@@ -3,3 +3,12 @@
 
 # Protobuf includes for Wireshark
 /api/user_v1/google/
+
+# Secrets
+.credentials
+
+# Environment
+*.prod.env
+
+#DBA
+admins-command.sql

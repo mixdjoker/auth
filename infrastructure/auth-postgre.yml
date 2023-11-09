@@ -1,0 +1,24 @@
+name: auth
+
+services:
+  auth-pg:
+    image: postgres:14-alpine3.17
+    env_file:
+      - "../${ENV_FILE}"
+    ports:
+      - "${PG_LOCAL_PORT}:${PG_PORT}"
+    volumes:
+     - type: volume
+       source: auth-volume
+       target: /var/lib/postgresql/data
+    networks:
+      - auth-network
+    restart: on-failure
+
+volumes:
+  auth-volume:
+    name: auth-database-volume
+
+networks:
+  auth-network:
+    name: auth-app-network
